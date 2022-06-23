@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "768756834625",
+    "project_id": "wanderic",
+    "storage_bucket": "wanderic.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:768756834625:android:01e957baf2175d5f5901c0",
+        "android_client_info": {
+          "package_name": "com.example.hungry"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "768756834625-sebk8q3ksnpilc7qgpicvn41a6l0iu58.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBw_nDBL_AkqmN3977NCnVGgffpIrqIaf8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "768756834625-sebk8q3ksnpilc7qgpicvn41a6l0iu58.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
