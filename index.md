@@ -15,7 +15,13 @@ It utilizes the Flutter-Appframework to build native apps for IOS and Andriod.
 
 ## Application overview
 
-.      |  . |  . 
+<style>
+td, th {
+   border: none!important;
+}
+</style>
+
+_      |  _ |  _ 
 :-------------------------:|:-------------------------:|:-------------------------:
 <img src="assets/wanderbar_screens/0.png " alt="drawing" width="200"/>  | <img src="assets/wanderbar_screens/1.png " alt="drawing" width="200"/> | <img src="assets/wanderbar_screens/2.png " alt="drawing" width="200"/>
 <img src="assets/wanderbar_screens/3.png " alt="drawing" width="200"/>  | <img src="assets/wanderbar_screens/4.png " alt="drawing" width="200"/> | <img src="assets/wanderbar_screens/5.png " alt="drawing" width="200"/>
