@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hungry/models/core/recipe.dart';
 import 'package:hungry/models/helper/quick_log_helper.dart';
 import 'package:hungry/views/widgets/audio_log_tile%20.dart';
 import 'package:hungry/views/widgets/geolocation_log_tile.dart';
+import 'package:hungry/views/widgets/info_container.dart';
 import 'package:hungry/views/widgets/photo_log_tile%20.dart';
 import 'package:hungry/views/widgets/text_log_tile.dart';
 
@@ -17,6 +17,18 @@ class QuickLogEntryTiles extends StatelessWidget {
   }
 
   Widget buildLogListview(List<QuickLogEntry> entries, QuickLog ql) {
+    if (entries.isEmpty) {
+      print("EMPTY");
+      return Center(
+          child: Container(
+              padding: EdgeInsets.symmetric(vertical: 400),
+              child: InfoContainer(
+                icon: Icons.add_circle_rounded,
+                title: "Quicklog is empty, time to add something!",
+                subTitle: "Use the Appbar below to add different logs.",
+              )));
+    }
+    print("build list");
     return ListView.separated(
       shrinkWrap: true,
       addAutomaticKeepAlives: true,

@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:camera/camera.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,6 +12,7 @@ import 'package:hungry/models/core/recipe.dart';
 import 'package:hungry/models/helper/quick_log_helper.dart';
 import 'package:hungry/views/utils/AppColor.dart';
 import 'package:hungry/views/widgets/custom_bottom_add_bar%20copy.dart';
+import 'package:hungry/views/widgets/info_container.dart';
 import 'package:hungry/views/widgets/map_record_screen.dart';
 import 'package:hungry/views/widgets/quick_log_header.dart';
 import 'package:hungry/views/widgets/quicklogentry_tile.dart';
@@ -49,6 +49,23 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
 
   final DateFormat formatter = DateFormat('dd.MM.yyyy');
   final DateFormat formatterTime = DateFormat('HH:mm');
+
+  @override
+  void dispose() {
+    super.dispose();
+    print("dispose ql detail");
+  }
+
+  @override
+  void didUpdateWidget(covariant QuickLogDetailPage oldWidget) {
+    print("DID UPDATE");
+    super.didUpdateWidget(oldWidget);
+    setState(() {
+      quickLogStream = widget.data.selfRef
+          .snapshots()
+          .map((event) => QuickLog.fromJson(event.data()));
+    });
+  }
 
   @override
   void initState() {
@@ -382,6 +399,7 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
                     builder: (context, snapshot) {
                       print("build Tiles");
                       if (!snapshot.hasData) return Text("Loading...");
+                      print("create tile");
                       currentQuickLog = snapshot.data;
                       return QuickLogEntryTiles(
                         key: UniqueKey(),

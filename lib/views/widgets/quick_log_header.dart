@@ -341,6 +341,14 @@ class _QuickLogDetailHeaderState extends State<QuickLogDetailHeader> {
                 }
               }),
               child: TextField(
+                  onSubmitted: (value) {
+                    try {
+                      QuickLogHelper.instance
+                          .updateQuickLog(widget.data.selfRef, widget.data);
+                    } catch (e) {
+                      print(e);
+                    }
+                  },
                   textAlign: TextAlign.center,
                   controller: _descController,
                   autocorrect: true,

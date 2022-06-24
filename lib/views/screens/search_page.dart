@@ -8,6 +8,7 @@ import 'package:hungry/models/helper/quick_log_helper.dart';
 import 'package:hungry/models/helper/recipe_helper.dart';
 import 'package:hungry/views/utils/AppColor.dart';
 import 'package:hungry/views/widgets/featured_recipe_card.dart';
+import 'package:hungry/views/widgets/info_container.dart';
 import 'package:hungry/views/widgets/modals/search_filter_modal.dart';
 import 'package:hungry/views/widgets/quick_log_tile.dart';
 
@@ -234,20 +235,20 @@ class _SearchPageState extends State<SearchPage> {
                         }
 
                         if (element.sharedWithNames.where((editor) {
-                          return searchTerms.contains(editor.toLowerCase());
+                          if (editor != null) {
+                            return searchTerms.contains(editor.toLowerCase());
+                          }
+                          return false;
                         }).isNotEmpty) {
                           return true;
                         }
                         return false;
                       }).toList();
                       if (res.isEmpty) {
-                        return Center(
-                            child: Column(
-                          children: [
-                            Icon(Icons.golf_course_outlined),
-                            Text("No Trip found"),
-                          ],
-                        ));
+                        return InfoContainer(
+                            icon: Icons.golf_course_rounded,
+                            title: "No trip found.",
+                            subTitle: "Houston, we have a problem.");
                       }
                       return ListView.separated(
                         key: UniqueKey(),
@@ -299,13 +300,11 @@ class _SearchPageState extends State<SearchPage> {
                       }).toList();
                       res.sort((a, b) => sortRes(a, b, this.activeSortOption));
                       if (res.isEmpty) {
-                        return Center(
-                            child: Column(
-                          children: [
-                            Icon(Icons.air_rounded),
-                            Text("No Log found"),
-                          ],
-                        ));
+                        return InfoContainer(
+                          icon: Icons.air_rounded,
+                          title: "No Log found",
+                          subTitle: "What are you searching for anyways?",
+                        );
                       }
                       return ListView.separated(
                         key: UniqueKey(),

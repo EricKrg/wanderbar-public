@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hungry/models/core/recipe.dart';
 import 'package:hungry/models/helper/quick_log_helper.dart';
 import 'package:hungry/views/utils/AppColor.dart';
+import 'package:hungry/views/widgets/info_container.dart';
 import 'package:hungry/views/widgets/quick_log_tile.dart';
 
 class NewlyPostedPage extends StatelessWidget {
@@ -49,6 +50,12 @@ class NewlyPostedPage extends StatelessWidget {
         final res = snapshot.data.docs.map((docSnapshot) {
           return QuickLog.fromJson(docSnapshot.data());
         }).toList();
+        if (res.isEmpty) {
+          return InfoContainer(
+            title: "No QuickLogs found.",
+            subTitle: "If you create Quicklogs they will appear here",
+          );
+        }
         return ListView.separated(
           padding: EdgeInsets.symmetric(horizontal: 16),
           shrinkWrap: true,

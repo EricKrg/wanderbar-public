@@ -574,6 +574,7 @@ class _AllQuickLogsScreenState extends State<AllQuickLogsScreen> {
             .getQuickLogsAsStream(FirebaseAuth.instance.currentUser),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) return Text("Loading...");
+
           if (!widget.showAllQuicklogs) {
             return getMainWidget([]);
           }
@@ -581,8 +582,10 @@ class _AllQuickLogsScreenState extends State<AllQuickLogsScreen> {
           var res = snapshot.data.docs.map((docSnapshot) {
             return QuickLog.fromJson(docSnapshot.data());
           }).toList();
+          if (res.isNotEmpty) {
+            _currentQuicklog = res.first;
+          }
 
-          _currentQuicklog = res.first;
           return getMainWidget(res);
         });
   }
@@ -765,8 +768,9 @@ class _AllQuickLogsScreenState extends State<AllQuickLogsScreen> {
                         "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
                     subdomains: ['a', 'b', 'c']),
                 CircleLayerOptions(
-                    circles:
-                        buildCircleMarker(quicklogs[_currentIndex].entries)),
+                    circles: _currentQuicklog != null
+                        ? buildCircleMarker(quicklogs[_currentIndex].entries)
+                        : []),
                 MarkerClusterLayerOptions(
                   maxClusterRadius: 60,
                   size: Size(40, 40),

@@ -173,7 +173,9 @@ class PhotoLogTile extends StatelessWidget {
         },
       );
     } else {
-      returnWidget = Text("data");
+      returnWidget = Center(
+        child: CircularProgressIndicator(),
+      );
       //   returnWidget = Container(
       //       height: MediaQuery.of(context).size.height,
       //       alignment: Alignment.bottomLeft,

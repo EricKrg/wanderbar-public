@@ -16,6 +16,7 @@ import 'package:hungry/views/utils/AppColor.dart';
 import 'package:hungry/views/widgets/custom_app_bar.dart';
 import 'package:hungry/views/widgets/dummy_search_bar.dart';
 import 'package:hungry/views/widgets/featured_recipe_card.dart';
+import 'package:hungry/views/widgets/info_container.dart';
 import 'package:hungry/views/widgets/join_trip_modal.dart';
 import 'package:hungry/views/widgets/map_record_screen.dart';
 import 'package:hungry/views/widgets/quick_log_tile.dart';
@@ -219,6 +220,15 @@ class _StatefulHomePageState extends State<StatefulHomePage> {
                           if (!snapshot.hasData) return Text("loading...");
                           final latestPhotos = QuickLogHelper.instance
                               .filterLatestPhotos(snapshot.data);
+                          if (latestPhotos.isEmpty) {
+                            return Container(
+                                padding: EdgeInsets.all(20),
+                                child: InfoContainer(
+                                  title: "No Memories added yet!",
+                                  subTitle:
+                                      "If you add a Photolog, the most recent Photo will appear here.",
+                                ));
+                          }
                           return Container(
                             height: 174,
                             child: ListView.separated(
@@ -408,6 +418,16 @@ class _StatefulHomePageState extends State<StatefulHomePage> {
             snapshot.data.docs.map((docSnapshot) {
           return UserTripCollection.fromJson(docSnapshot.data());
         }).toList();
+        if (res.isEmpty) {
+          return Container(
+              padding: EdgeInsets.all(20),
+              child: InfoContainer(
+                icon: Icons.air_rounded,
+                title: "No Trips created yet!",
+                subTitle:
+                    "You can create a Trip or join a Trip with the buttons below",
+              ));
+        }
         return Container(
             margin: EdgeInsets.symmetric(vertical: 4),
             height: 240,

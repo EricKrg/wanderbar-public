@@ -10,6 +10,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hungry/models/core/recipe.dart';
 import 'package:hungry/models/helper/quick_log_helper.dart';
 import 'package:hungry/views/utils/AppColor.dart';
+import 'package:hungry/views/widgets/info_container.dart';
 import 'package:hungry/views/widgets/modals/register_modal.dart';
 import 'package:hungry/views/widgets/take_picture_screen.dart';
 import 'package:hungry/views/widgets/user_info_tile.dart';
@@ -215,6 +216,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         if (!snapshot.hasData)
                           return CircularProgressIndicator();
                         final user = UserSimple.fromJson(snapshot.data.data());
+
+                        if (user.displayName == null) {
+                          return InfoContainer(
+                              title: "No Username set",
+                              subTitle:
+                                  "Edit your Useraccount to set a Username");
+                        }
+
                         return UserInfoTile(
                           margin: EdgeInsets.only(bottom: 16),
                           label: 'Display name',
