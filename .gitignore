@@ -1,0 +1,5 @@
+/build
+.flutter*
+.packages
+pubspec.lock
+.dart_tool
