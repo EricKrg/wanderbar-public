@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:hungry/views/screens/explore_page.dart';
-import 'package:hungry/views/screens/home_page.dart';
-import 'package:hungry/views/screens/newly_posted_page.dart';
-import 'package:hungry/views/utils/AppColor.dart';
-import 'package:hungry/views/widgets/custom_bottom_navigation_bar.dart';
+import 'package:wanderbar/views/screens/explore_page.dart';
+import 'package:wanderbar/views/screens/home_page.dart';
+import 'package:wanderbar/views/screens/newly_posted_page.dart';
+import 'package:wanderbar/views/utils/AppColor.dart';
+import 'package:wanderbar/views/widgets/custom_bottom_navigation_bar.dart';
 
 class PageSwitcher extends StatefulWidget {
   @override

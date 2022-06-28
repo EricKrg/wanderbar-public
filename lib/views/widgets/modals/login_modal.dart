@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:hungry/models/helper/quick_log_helper.dart';
-import 'package:hungry/views/utils/AppColor.dart';
-import 'package:hungry/views/widgets/custom_text_field.dart';
+import 'package:wanderbar/models/helper/quick_log_helper.dart';
+import 'package:wanderbar/views/utils/AppColor.dart';
+import 'package:wanderbar/views/widgets/custom_text_field.dart';
 
 class StatefulLoginModal extends StatefulWidget {
   const StatefulLoginModal({Key key}) : super(key: key);

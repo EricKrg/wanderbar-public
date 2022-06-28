@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hungry/views/utils/AppColor.dart';
+import 'package:wanderbar/views/utils/AppColor.dart';
 
 class InfoContainer extends StatelessWidget {
   final String title;

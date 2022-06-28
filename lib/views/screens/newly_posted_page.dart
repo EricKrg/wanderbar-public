@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:hungry/models/core/recipe.dart';
-import 'package:hungry/models/helper/quick_log_helper.dart';
-import 'package:hungry/views/utils/AppColor.dart';
-import 'package:hungry/views/widgets/info_container.dart';
-import 'package:hungry/views/widgets/quick_log_tile.dart';
+import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/helper/quick_log_helper.dart';
+import 'package:wanderbar/views/utils/AppColor.dart';
+import 'package:wanderbar/views/widgets/info_container.dart';
+import 'package:wanderbar/views/widgets/quick_log_tile.dart';
 
 class NewlyPostedPage extends StatelessWidget {
   final TextEditingController searchInputController = TextEditingController();

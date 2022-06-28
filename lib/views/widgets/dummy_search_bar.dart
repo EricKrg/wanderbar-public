@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hungry/views/utils/AppColor.dart';
+import 'package:wanderbar/views/utils/AppColor.dart';
 
 class DummySearchBar extends StatelessWidget {
   final Function routeTo;

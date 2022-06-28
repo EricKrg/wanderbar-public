@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hungry/models/core/recipe.dart';
-import 'package:hungry/views/utils/AppColor.dart';
+import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:intl/intl.dart';
 
 class TextLogTile extends StatelessWidget {

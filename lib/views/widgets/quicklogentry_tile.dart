@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:hungry/models/core/recipe.dart';
-import 'package:hungry/models/helper/quick_log_helper.dart';
-import 'package:hungry/views/widgets/audio_log_tile%20.dart';
-import 'package:hungry/views/widgets/geolocation_log_tile.dart';
-import 'package:hungry/views/widgets/info_container.dart';
-import 'package:hungry/views/widgets/photo_log_tile%20.dart';
-import 'package:hungry/views/widgets/text_log_tile.dart';
+import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/helper/quick_log_helper.dart';
+import 'package:wanderbar/views/widgets/audio_log_tile%20.dart';
+import 'package:wanderbar/views/widgets/geolocation_log_tile.dart';
+import 'package:wanderbar/views/widgets/info_container.dart';
+import 'package:wanderbar/views/widgets/photo_log_tile%20.dart';
+import 'package:wanderbar/views/widgets/text_log_tile.dart';
 
 class QuickLogEntryTiles extends StatelessWidget {
   final QuickLog data;

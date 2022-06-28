@@ -7,13 +7,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hungry/models/core/recipe.dart';
-import 'package:hungry/models/helper/quick_log_helper.dart';
-import 'package:hungry/views/utils/AppColor.dart';
-import 'package:hungry/views/widgets/info_container.dart';
-import 'package:hungry/views/widgets/modals/register_modal.dart';
-import 'package:hungry/views/widgets/take_picture_screen.dart';
-import 'package:hungry/views/widgets/user_info_tile.dart';
+import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/helper/quick_log_helper.dart';
+import 'package:wanderbar/views/utils/AppColor.dart';
+import 'package:wanderbar/views/widgets/info_container.dart';
+import 'package:wanderbar/views/widgets/modals/register_modal.dart';
+import 'package:wanderbar/views/widgets/take_picture_screen.dart';
+import 'package:wanderbar/views/widgets/user_info_tile.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key key}) : super(key: key);
@@ -125,6 +125,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       .uploadUserImage(File(imageResult.path), user);
 
                   user.updatePhotoURL(await uploadTask.ref.getDownloadURL());
+                  QuickLogHelper.instance
+                      .createSimpleUser(FirebaseAuth.instance.currentUser);
                   CachedNetworkImage.evictFromCache(user.photoURL);
                   setState(() {
                     isPhotoLoading = false;

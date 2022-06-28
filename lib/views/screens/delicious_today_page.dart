@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hungry/models/core/recipe.dart';
-import 'package:hungry/models/helper/recipe_helper.dart';
-import 'package:hungry/views/utils/AppColor.dart';
-import 'package:hungry/views/widgets/popular_recipe_card.dart';
-import 'package:hungry/views/widgets/recipe_tile.dart';
+import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/helper/recipe_helper.dart';
+import 'package:wanderbar/views/utils/AppColor.dart';
+import 'package:wanderbar/views/widgets/popular_recipe_card.dart';
+import 'package:wanderbar/views/widgets/recipe_tile.dart';
 
 class DeliciousTodayPage extends StatelessWidget {
   final Recipe popularRecipe = RecipeHelper.popularRecipe;
@@ -16,7 +16,11 @@ class DeliciousTodayPage extends StatelessWidget {
         backgroundColor: AppColor.primary,
         elevation: 0,
         centerTitle: true,
-        title: Text('Delicious Today', style: TextStyle(fontFamily: 'inter', fontWeight: FontWeight.w400, fontSize: 16)),
+        title: Text('Delicious Today',
+            style: TextStyle(
+                fontFamily: 'inter',
+                fontWeight: FontWeight.w400,
+                fontSize: 16)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios),
           onPressed: () {
