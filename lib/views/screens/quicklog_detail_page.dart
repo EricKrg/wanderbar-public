@@ -12,7 +12,6 @@ import 'package:wanderbar/models/core/recipe.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:wanderbar/views/widgets/custom_bottom_add_bar%20copy.dart';
-import 'package:wanderbar/views/widgets/info_container.dart';
 import 'package:wanderbar/views/widgets/map_record_screen.dart';
 import 'package:wanderbar/views/widgets/quick_log_header.dart';
 import 'package:wanderbar/views/widgets/quicklogentry_tile.dart';
@@ -87,7 +86,7 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
     switch (index) {
       // photo
       case 0:
-        final XFile imageResult = await showModalBottomSheet(
+        final List<XFile> imageResult = await showModalBottomSheet(
             context: context,
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
@@ -98,124 +97,139 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
               return TakePictureScreen();
             });
         // final exif = await readExifFromBytes(await imageResult.readAsBytes())
-        if (imageResult == null || imageResult.path == null) {
+        if (imageResult.isEmpty) {
           return;
         }
+
         showDialog(
             context: context,
             builder: (BuildContext context) {
-              final _logController = TextEditingController();
-              var hintText = "Add Titel";
-              return BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
-                  child: AlertDialog(
-                    backgroundColor: Colors.transparent,
-                    insetPadding: EdgeInsets.all(0),
-                    content: GestureDetector(
-                      // Card Wrapper
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        alignment: Alignment.bottomCenter,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 15),
-                        decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.circular(10),
-                          image: DecorationImage(
-                            image: Image.file(File(imageResult.path)).image,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        child: ClipRect(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
-                            child: Container(
-                              //height: 80,
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Colors.black.withOpacity(0.26),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  TextField(
-                                    onSubmitted: (res) async {
-                                      savePoto(
-                                          imageResult.path,
-                                          recordDate,
-                                          position,
-                                          _logController,
-                                          currentQuickLog);
-                                      Navigator.of(context).pop();
-                                      scrollDown();
-                                    },
-                                    controller: _logController,
-                                    autocorrect: true,
-                                    keyboardType: TextInputType.name,
-                                    decoration: InputDecoration(
-                                      hintText: hintText,
-                                      hintStyle: TextStyle(color: Colors.white),
-                                    ),
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        decorationColor: Colors.white,
-                                        fontSize: 12,
-                                        height: 150 / 100,
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: 'inter'),
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(top: 8),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.date_range,
-                                            size: 12, color: Colors.white),
-                                        Container(
-                                          margin: EdgeInsets.only(left: 5),
-                                          child: Text(
-                                            formatter.format(recordDate),
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    actions: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                savePoto(imageResult.path, recordDate, position,
-                                    _logController, currentQuickLog);
-                                Navigator.of(context).pop();
-                                scrollDown();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                primary: AppColor.primary,
-                              ),
-                              child: Icon(Icons.add_a_photo),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ));
+              return RecordedPicture(
+                  currentQuickLog: currentQuickLog,
+                  files: imageResult,
+                  position: position,
+                  recordDate: recordDate);
             });
+        // return BackdropFilter(
+        //     filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+        //     child: AlertDialog(
+        //       backgroundColor: Colors.transparent,
+        //       insetPadding: EdgeInsets.all(0),
+        //       content: GestureDetector(
+        //         // Card Wrapper
+        //         child: Container(
+        //           width: MediaQuery.of(context).size.width,
+        //           height: MediaQuery.of(context).size.height * 0.5,
+        //           alignment: Alignment.bottomCenter,
+        //           padding:
+        //               EdgeInsets.symmetric(horizontal: 8, vertical: 15),
+        //           decoration: BoxDecoration(
+        //             color: Colors.grey,
+        //             borderRadius: BorderRadius.circular(10),
+        //             // image: DecorationImage(
+        //             //   image: Image.file(File(imageResult.path)).image,
+        //             //   fit: BoxFit.cover,
+        //             // ),
+        //           ),
+        //           child: ClipRect(
+        //             child: BackdropFilter(
+        //               filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+        //               child: Container(
+        //                 //height: 80,
+        //                 padding: EdgeInsets.all(8),
+        //                 decoration: BoxDecoration(
+        //                   borderRadius: BorderRadius.circular(5),
+        //                   color: Colors.black.withOpacity(0.26),
+        //                 ),
+        //                 child: Column(
+        //                   mainAxisSize: MainAxisSize.min,
+        //                   crossAxisAlignment: CrossAxisAlignment.start,
+        //                   children: [
+        //                     TextField(
+        //                       onSubmitted: (res) async {
+        //                         imageResult.forEach(
+        //                           (element) {
+        //                             savePoto(
+        //                                 element.path,
+        //                                 recordDate,
+        //                                 position,
+        //                                 _logController,
+        //                                 currentQuickLog);
+        //                           },
+        //                         );
+
+        //                         Navigator.of(context).pop();
+        //                         scrollDown();
+        //                       },
+        //                       controller: _logController,
+        //                       autocorrect: true,
+        //                       keyboardType: TextInputType.name,
+        //                       decoration: InputDecoration(
+        //                         hintText: hintText,
+        //                         hintStyle: TextStyle(color: Colors.white),
+        //                       ),
+        //                       maxLines: 1,
+        //                       style: TextStyle(
+        //                           color: Colors.white,
+        //                           decorationColor: Colors.white,
+        //                           fontSize: 12,
+        //                           height: 150 / 100,
+        //                           fontWeight: FontWeight.w600,
+        //                           fontFamily: 'inter'),
+        //                     ),
+        //                     Container(
+        //                       margin: EdgeInsets.only(top: 8),
+        //                       child: Row(
+        //                         children: [
+        //                           Icon(Icons.date_range,
+        //                               size: 12, color: Colors.white),
+        //                           Container(
+        //                             margin: EdgeInsets.only(left: 5),
+        //                             child: Text(
+        //                               formatter.format(recordDate),
+        //                               style: TextStyle(
+        //                                   color: Colors.white,
+        //                                   fontSize: 10),
+        //                             ),
+        //                           ),
+        //                         ],
+        //                       ),
+        //                     )
+        //                   ],
+        //                 ),
+        //               ),
+        //             ),
+        //           ),
+        //         ),
+        //       ),
+        //       actions: [
+        //         Row(
+        //           mainAxisAlignment: MainAxisAlignment.center,
+        //           children: [
+        //             Container(
+        //               child: ElevatedButton(
+        //                 onPressed: () async {
+        //                   imageResult.forEach(
+        //                     (element) {
+        //                       savePoto(element.path, recordDate, position,
+        //                           _logController, currentQuickLog);
+        //                     },
+        //                   );
+
+        //                   Navigator.of(context).pop();
+        //                   scrollDown();
+        //                 },
+        //                 style: ElevatedButton.styleFrom(
+        //                   primary: AppColor.primary,
+        //                 ),
+        //                 child: Icon(Icons.add_a_photo),
+        //               ),
+        //             ),
+        //           ],
+        //         )
+        //       ],
+        //     ));
+        // });
         break;
       // text
       case 1:
@@ -454,20 +468,6 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
     return audioString;
   }
 
-  savePoto(String imagePath, DateTime recordDate, Position position,
-      TextEditingController titleController, QuickLog quickLog) async {
-    final ql = new QuickLogEntry(
-        fileUrl: imagePath,
-        content: imagePath,
-        recordDate: recordDate,
-        titel: titleController.text.trim(),
-        entryType: QuickLogType.photo,
-        position: position);
-    quickLog.entries.add(ql);
-    quickLogHelper.updateQuickLog(quickLog.selfRef, quickLog);
-    quickLogHelper.tryUpload(imagePath, quickLog, ql.uuid);
-  }
-
   Future<String> createTempFileFromUint8List(Uint8List decodedAudio) async {
     final tempDir = await getTemporaryDirectory();
     File file = await File('${tempDir.path}/tmp.mp3').create();
@@ -482,5 +482,159 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
       curve: Curves.easeOut,
       duration: const Duration(milliseconds: 300),
     );
+  }
+}
+
+class RecordedPicture extends StatelessWidget {
+  final DateFormat formatter = DateFormat('dd.MM.yyyy');
+  final List<XFile> files;
+  final DateTime recordDate;
+  final QuickLog currentQuickLog;
+  final Position position;
+
+  RecordedPicture(
+      {Key key,
+      this.files,
+      this.recordDate,
+      this.currentQuickLog,
+      this.position})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var hintText = "Add Titel";
+    final controllers =
+        List.generate(files.length, (i) => TextEditingController());
+
+    return AlertDialog(
+        contentPadding: EdgeInsets.zero,
+        backgroundColor: Colors.transparent,
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    var index = 0;
+                    files.forEach(
+                      (element) {
+                        savePoto(element.path, recordDate, position,
+                            controllers[index], currentQuickLog);
+                        index = index + 1;
+                      },
+                    );
+
+                    Navigator.of(context).pop();
+                    // scrollDown();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: AppColor.primary,
+                  ),
+                  child: Icon(Icons.add_a_photo),
+                ),
+              ),
+            ],
+          )
+        ],
+        content: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: BouncingScrollPhysics(),
+                itemCount: files.length,
+                scrollDirection: Axis.vertical,
+                separatorBuilder: (context, index) {
+                  return SizedBox(height: 16);
+                },
+                itemBuilder: (context, index) {
+                  return Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.5,
+                    alignment: Alignment.bottomCenter,
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 15),
+                    decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(10),
+                      image: DecorationImage(
+                        image: Image.file(File(files[index].path)).image,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    child: ClipRect(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+                        child: Container(
+                          //height: 80,
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: Colors.black.withOpacity(0.26),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextField(
+                                onSubmitted: (res) async {},
+                                controller: controllers[index],
+                                autocorrect: true,
+                                keyboardType: TextInputType.name,
+                                decoration: InputDecoration(
+                                  hintText: hintText,
+                                  hintStyle: TextStyle(color: Colors.white),
+                                ),
+                                maxLines: 1,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    decorationColor: Colors.white,
+                                    fontSize: 12,
+                                    height: 150 / 100,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'inter'),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(top: 8),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.date_range,
+                                        size: 12, color: Colors.white),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 5),
+                                      child: Text(
+                                        formatter.format(recordDate),
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 10),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            )));
+  }
+
+  savePoto(String imagePath, DateTime recordDate, Position position,
+      TextEditingController titleController, QuickLog quickLog) async {
+    final ql = new QuickLogEntry(
+        fileUrl: imagePath,
+        content: imagePath,
+        recordDate: recordDate,
+        titel: titleController.text.trim(),
+        entryType: QuickLogType.photo,
+        position: position);
+    quickLog.entries.add(ql);
+    QuickLogHelper.instance.updateQuickLog(quickLog.selfRef, quickLog);
+    QuickLogHelper.instance.tryUpload(imagePath, quickLog, ql.uuid);
   }
 }

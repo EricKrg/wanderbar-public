@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/views/utils/AppColor.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool showProfilePhoto;
@@ -34,7 +36,6 @@ class CustomAppBarState extends State<CustomAppBar> {
     super.initState();
     widget.scrollController.addListener(() {
       changeAppBar(widget.scrollController);
-      print(this.showAppbar);
     });
   }
 
@@ -61,10 +62,13 @@ class CustomAppBarState extends State<CustomAppBar> {
         opacity: this.showAppbar ? 1 : 0,
         duration: Duration(milliseconds: 300),
         child: AppBar(
-            backgroundColor: Colors.transparent,
+            systemOverlayStyle: SystemUiOverlayStyle.dark,
+            backgroundColor: AppColor.primary.withAlpha(80),
             title: Text('Wanderbar',
                 style: TextStyle(
-                    fontFamily: 'inter', fontWeight: FontWeight.w700)),
+                    color: AppColor.whiteSoft,
+                    fontFamily: 'inter',
+                    fontWeight: FontWeight.w700)),
             elevation: 0,
             actions: [
               Visibility(

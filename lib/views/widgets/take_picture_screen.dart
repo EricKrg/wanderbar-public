@@ -45,7 +45,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
                   .pickImage(source: ImageSource.camera, imageQuality: 25);
               //final image = await _controller.takePicture();
 
-              Navigator.pop(context, image);
+              Navigator.pop(context, [image]);
             } catch (e) {
               print(e);
             }
@@ -74,8 +74,8 @@ class TakePictureScreenState extends State<TakePictureScreen> {
               // await _initializeControllerFuture;
               // // Attempt to take a picture and get the file `image`
               // // where it was saved.
-              final image = await ImagePicker()
-                  .pickImage(source: ImageSource.gallery, imageQuality: 25);
+              final List<XFile> image =
+                  await ImagePicker().pickMultiImage(imageQuality: 25);
               //final image = await _controller.takePicture();
               Navigator.pop(context, image);
             } catch (e) {

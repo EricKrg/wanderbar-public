@@ -63,10 +63,7 @@ class _StatefulHomePageState extends State<StatefulHomePage> {
           },
         ),
         body: Stack(children: [
-          Container(
-            height: MediaQuery.of(context).size.height,
-            decoration: BoxDecoration(gradient: AppColor.bgMultiColor),
-          ),
+          AnimatedGradient(),
           HomePageContent(scrollController: this._scrollController)
         ]));
   }
@@ -102,11 +99,14 @@ class HomePageContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            DummySearchBar(
-              routeTo: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => SearchPage()));
-              },
+            Container(
+              margin: EdgeInsets.only(top: 10),
+              child: DummySearchBar(
+                routeTo: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => SearchPage()));
+                },
+              ),
             ),
             Container(
               margin: EdgeInsets.only(top: 12),

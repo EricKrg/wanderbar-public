@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wanderbar/models/core/recipe.dart';
 import 'package:wanderbar/views/screens/full_screen_image.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +11,7 @@ class RecommendationRecipeCard extends StatelessWidget {
   RecommendationRecipeCard({@required this.data});
   @override
   Widget build(BuildContext context) {
+    if (data.isLocalFile) return Container();
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(

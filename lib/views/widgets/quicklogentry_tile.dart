@@ -92,7 +92,8 @@ class QuickLogEntryTile extends StatelessWidget {
       case QuickLogType.photo:
         //print("URL ${entry.content}");
         print("rebuilt photo");
-        return PhotoLogTile(key: ValueKey(entry.uuid), data: entry);
+        return PhotoLogTile(
+            key: ValueKey(entry.uuid), data: entry, parent: parent);
         break;
       case QuickLogType.text:
         return TextLogTile(data: entry);

@@ -319,7 +319,8 @@ class QuickLogHelper {
 
   // tries to upload the file async if it fails bc the device is i.e. offline
   // it set the flag isLocalFile to true so that the user can try to upload the file again
-  tryUpload(String imagePath, QuickLog ql, String entryUUID) async {
+  Future<bool> tryUpload(
+      String imagePath, QuickLog ql, String entryUUID) async {
     try {
       print("TRY UPLOAD");
       TaskSnapshot upload = await this
@@ -335,6 +336,7 @@ class QuickLogHelper {
       // add new entry with updated fileUrl
       ql.entries.add(entry);
       this.updateQuickLog(ql.selfRef, ql);
+      return true;
     } catch (e) {
       print("ERROR uploading $e");
       var entry = ql.entries.firstWhere((element) => element.uuid == entryUUID);
@@ -344,6 +346,7 @@ class QuickLogHelper {
       // add new entry with updated fileUrl
       ql.entries.add(entry);
       this.updateQuickLog(ql.selfRef, ql);
+      return false;
     }
   }
 
