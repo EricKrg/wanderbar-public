@@ -2,12 +2,10 @@ import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
 import 'package:wanderbar/models/core/recipe.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
 import 'package:wanderbar/views/screens/trip_screen.dart';
 import 'package:wanderbar/views/widgets/map_record_screen.dart';
-import 'package:latlong2/latlong.dart';
 
 class FeaturedRecipeCard extends StatelessWidget {
   final UserTripCollection data;
@@ -44,7 +42,7 @@ class FeaturedRecipeCard extends StatelessWidget {
       },
       // Card Wrapper
       child: Container(
-          width: 180,
+          width: MediaQuery.of(context).size.width * 0.8,
           height: 220,
           clipBehavior: Clip.antiAlias,
           alignment: Alignment.bottomCenter,

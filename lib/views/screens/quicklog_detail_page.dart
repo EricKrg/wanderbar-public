@@ -5,9 +5,13 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:camera/camera.dart';
+import 'package:exif/exif.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:wanderbar/models/core/recipe.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
@@ -86,7 +90,7 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
     switch (index) {
       // photo
       case 0:
-        final List<XFile> imageResult = await showModalBottomSheet(
+        final List<XFile> imageResults = await showModalBottomSheet(
             context: context,
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
@@ -94,142 +98,28 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20))),
             builder: (context) {
-              return TakePictureScreen();
+              return TakePictureScreen(isMulti: true);
             });
-        // final exif = await readExifFromBytes(await imageResult.readAsBytes())
-        if (imageResult.isEmpty) {
+
+        List<Map<String, IfdTag>> exifs = [];
+
+        if (imageResults == null || imageResults.isEmpty) {
           return;
         }
+        await Future.forEach(imageResults, (file) async {
+          exifs.add(await readExifFromBytes(await file.readAsBytes()));
+        });
 
         showDialog(
             context: context,
             builder: (BuildContext context) {
               return RecordedPicture(
                   currentQuickLog: currentQuickLog,
-                  files: imageResult,
+                  files: imageResults,
                   position: position,
+                  exifs: exifs,
                   recordDate: recordDate);
             });
-        // return BackdropFilter(
-        //     filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
-        //     child: AlertDialog(
-        //       backgroundColor: Colors.transparent,
-        //       insetPadding: EdgeInsets.all(0),
-        //       content: GestureDetector(
-        //         // Card Wrapper
-        //         child: Container(
-        //           width: MediaQuery.of(context).size.width,
-        //           height: MediaQuery.of(context).size.height * 0.5,
-        //           alignment: Alignment.bottomCenter,
-        //           padding:
-        //               EdgeInsets.symmetric(horizontal: 8, vertical: 15),
-        //           decoration: BoxDecoration(
-        //             color: Colors.grey,
-        //             borderRadius: BorderRadius.circular(10),
-        //             // image: DecorationImage(
-        //             //   image: Image.file(File(imageResult.path)).image,
-        //             //   fit: BoxFit.cover,
-        //             // ),
-        //           ),
-        //           child: ClipRect(
-        //             child: BackdropFilter(
-        //               filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
-        //               child: Container(
-        //                 //height: 80,
-        //                 padding: EdgeInsets.all(8),
-        //                 decoration: BoxDecoration(
-        //                   borderRadius: BorderRadius.circular(5),
-        //                   color: Colors.black.withOpacity(0.26),
-        //                 ),
-        //                 child: Column(
-        //                   mainAxisSize: MainAxisSize.min,
-        //                   crossAxisAlignment: CrossAxisAlignment.start,
-        //                   children: [
-        //                     TextField(
-        //                       onSubmitted: (res) async {
-        //                         imageResult.forEach(
-        //                           (element) {
-        //                             savePoto(
-        //                                 element.path,
-        //                                 recordDate,
-        //                                 position,
-        //                                 _logController,
-        //                                 currentQuickLog);
-        //                           },
-        //                         );
-
-        //                         Navigator.of(context).pop();
-        //                         scrollDown();
-        //                       },
-        //                       controller: _logController,
-        //                       autocorrect: true,
-        //                       keyboardType: TextInputType.name,
-        //                       decoration: InputDecoration(
-        //                         hintText: hintText,
-        //                         hintStyle: TextStyle(color: Colors.white),
-        //                       ),
-        //                       maxLines: 1,
-        //                       style: TextStyle(
-        //                           color: Colors.white,
-        //                           decorationColor: Colors.white,
-        //                           fontSize: 12,
-        //                           height: 150 / 100,
-        //                           fontWeight: FontWeight.w600,
-        //                           fontFamily: 'inter'),
-        //                     ),
-        //                     Container(
-        //                       margin: EdgeInsets.only(top: 8),
-        //                       child: Row(
-        //                         children: [
-        //                           Icon(Icons.date_range,
-        //                               size: 12, color: Colors.white),
-        //                           Container(
-        //                             margin: EdgeInsets.only(left: 5),
-        //                             child: Text(
-        //                               formatter.format(recordDate),
-        //                               style: TextStyle(
-        //                                   color: Colors.white,
-        //                                   fontSize: 10),
-        //                             ),
-        //                           ),
-        //                         ],
-        //                       ),
-        //                     )
-        //                   ],
-        //                 ),
-        //               ),
-        //             ),
-        //           ),
-        //         ),
-        //       ),
-        //       actions: [
-        //         Row(
-        //           mainAxisAlignment: MainAxisAlignment.center,
-        //           children: [
-        //             Container(
-        //               child: ElevatedButton(
-        //                 onPressed: () async {
-        //                   imageResult.forEach(
-        //                     (element) {
-        //                       savePoto(element.path, recordDate, position,
-        //                           _logController, currentQuickLog);
-        //                     },
-        //                   );
-
-        //                   Navigator.of(context).pop();
-        //                   scrollDown();
-        //                 },
-        //                 style: ElevatedButton.styleFrom(
-        //                   primary: AppColor.primary,
-        //                 ),
-        //                 child: Icon(Icons.add_a_photo),
-        //               ),
-        //             ),
-        //           ],
-        //         )
-        //       ],
-        //     ));
-        // });
         break;
       // text
       case 1:
@@ -491,21 +381,22 @@ class RecordedPicture extends StatelessWidget {
   final DateTime recordDate;
   final QuickLog currentQuickLog;
   final Position position;
+  final List<Map<String, IfdTag>> exifs;
 
   RecordedPicture(
       {Key key,
       this.files,
       this.recordDate,
       this.currentQuickLog,
-      this.position})
+      this.position,
+      this.exifs})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var hintText = "Add Titel";
-    final controllers =
-        List.generate(files.length, (i) => TextEditingController());
-
+    final titles = List.generate(files.length, (i) => "");
+    final positions = List.generate(files.length, (_) => position);
     return AlertDialog(
         contentPadding: EdgeInsets.zero,
         backgroundColor: Colors.transparent,
@@ -519,14 +410,13 @@ class RecordedPicture extends StatelessWidget {
                     var index = 0;
                     files.forEach(
                       (element) {
-                        savePoto(element.path, recordDate, position,
-                            controllers[index], currentQuickLog);
+                        savePoto(element.path, recordDate, positions[index],
+                            titles[index], currentQuickLog);
                         index = index + 1;
                       },
                     );
 
                     Navigator.of(context).pop();
-                    // scrollDown();
                   },
                   style: ElevatedButton.styleFrom(
                     primary: AppColor.primary,
@@ -551,6 +441,12 @@ class RecordedPicture extends StatelessWidget {
                   return SizedBox(height: 16);
                 },
                 itemBuilder: (context, index) {
+                  final exif = exifs[index];
+                  Position exifPostion = getExifPosition(exif);
+                  if (exifPostion == null) {
+                    exifPostion = position;
+                  }
+
                   return Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height * 0.5,
@@ -564,60 +460,20 @@ class RecordedPicture extends StatelessWidget {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    child: ClipRect(
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
-                        child: Container(
-                          //height: 80,
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.black.withOpacity(0.26),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TextField(
-                                onSubmitted: (res) async {},
-                                controller: controllers[index],
-                                autocorrect: true,
-                                keyboardType: TextInputType.name,
-                                decoration: InputDecoration(
-                                  hintText: hintText,
-                                  hintStyle: TextStyle(color: Colors.white),
-                                ),
-                                maxLines: 1,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    decorationColor: Colors.white,
-                                    fontSize: 12,
-                                    height: 150 / 100,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: 'inter'),
-                              ),
-                              Container(
-                                margin: EdgeInsets.only(top: 8),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.date_range,
-                                        size: 12, color: Colors.white),
-                                    Container(
-                                      margin: EdgeInsets.only(left: 5),
-                                      child: Text(
-                                        formatter.format(recordDate),
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 10),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: PictureInfo(
+                        hintText: hintText,
+                        recordDate: recordDate,
+                        onTitle: (title) {
+                          titles[index] = title;
+                        },
+                        onUserPhotoLocation: (usePhotoLocation) {
+                          print("photolocatiopn $usePhotoLocation");
+                          if (usePhotoLocation) {
+                            positions[index] = exifPostion;
+                          } else {
+                            positions[index] = position;
+                          }
+                        }),
                   );
                 },
               ),
@@ -625,16 +481,185 @@ class RecordedPicture extends StatelessWidget {
   }
 
   savePoto(String imagePath, DateTime recordDate, Position position,
-      TextEditingController titleController, QuickLog quickLog) async {
+      String title, QuickLog quickLog) {
+    print("save $title");
     final ql = new QuickLogEntry(
         fileUrl: imagePath,
         content: imagePath,
         recordDate: recordDate,
-        titel: titleController.text.trim(),
+        titel: title,
         entryType: QuickLogType.photo,
         position: position);
     quickLog.entries.add(ql);
     QuickLogHelper.instance.updateQuickLog(quickLog.selfRef, quickLog);
     QuickLogHelper.instance.tryUpload(imagePath, quickLog, ql.uuid);
+  }
+
+  LatLng exifLatitudeLongitudePoint(Map<String, IfdTag> data) {
+    if (data.containsKey('GPS GPSLongitude')) {
+      final gpsLatitude = data['GPS GPSLatitude'];
+      final latitudeSignal = data['GPS GPSLatitudeRef'].printable;
+      List latitudeRation = gpsLatitude.values.toList();
+      List latitudeValue = latitudeRation.map((item) {
+        return (item.numerator.toDouble() / item.denominator.toDouble());
+      }).toList();
+      double latitude = latitudeValue[0] +
+          (latitudeValue[1] / 60) +
+          (latitudeValue[2] / 3600);
+      if (latitudeSignal == 'S') {
+        latitude = -latitude;
+      }
+
+      final gpsLongitude = data['GPS GPSLongitude'];
+      final longitudeSignal = data['GPS GPSLongitude'].printable;
+      List longitudeRation = gpsLongitude.values.toList();
+      List longitudeValue = longitudeRation.map((item) {
+        return (item.numerator.toDouble() / item.denominator.toDouble());
+      }).toList();
+      double longitude = longitudeValue[0] +
+          (longitudeValue[1] / 60) +
+          (longitudeValue[2] / 3600);
+      if (longitudeSignal == 'W') {
+        longitude = -longitude;
+      }
+
+      return LatLng(latitude, longitude);
+    }
+    return LatLng(0, 0);
+  }
+
+  Position getExifPosition(Map<String, IfdTag> exif) {
+    final exifLatLng = exifLatitudeLongitudePoint(exif);
+    if (exifLatLng == null) {
+      return null;
+    }
+    Map posMap = position.toJson();
+    posMap.update("latitude", (value) => exifLatLng.latitude);
+    posMap.update("longitude", (value) => exifLatLng.longitude);
+    final exifPostion = Position.fromMap(posMap);
+    return exifPostion;
+  }
+}
+
+class PictureInfo extends StatefulWidget {
+  final hintText;
+  final TextEditingController controller;
+  final recordDate;
+  final Function(bool) onUserPhotoLocation;
+  final Function(String) onTitle;
+
+  PictureInfo(
+      {Key key,
+      this.hintText,
+      this.controller,
+      this.recordDate,
+      this.onTitle,
+      this.onUserPhotoLocation})
+      : super(key: key);
+
+  @override
+  PictureInfoState createState() => PictureInfoState();
+}
+
+class PictureInfoState extends State<PictureInfo> {
+  bool _switchValue = true;
+  final DateFormat formatter = DateFormat('dd.MM.yyyy');
+  TextEditingController controller;
+  @override
+  void initState() {
+    widget.onUserPhotoLocation(_switchValue);
+    controller = widget.controller;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+        child: Container(
+          //height: 80,
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: Colors.black.withOpacity(0.26),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                onSubmitted: (res) {
+                  widget.onTitle(res.trim());
+                },
+                onChanged: (res) {
+                  widget.onTitle(res.trim());
+                },
+                controller: controller,
+                autocorrect: true,
+                keyboardType: TextInputType.name,
+                decoration: InputDecoration(
+                  hintText: widget.hintText,
+                  hintStyle: TextStyle(color: Colors.white),
+                ),
+                maxLines: 1,
+                style: TextStyle(
+                    color: Colors.white,
+                    decorationColor: Colors.white,
+                    fontSize: 12,
+                    height: 150 / 100,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'inter'),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.date_range, size: 12, color: Colors.white),
+                    Container(
+                      margin: EdgeInsets.only(left: 5),
+                      child: Text(
+                        formatter.format(widget.recordDate),
+                        style: TextStyle(color: Colors.white, fontSize: 10),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Use Picture Location",
+                    style: TextStyle(
+                        color: Colors.white,
+                        decorationColor: Colors.white,
+                        fontSize: 12,
+                        height: 150 / 100,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'inter'),
+                  ),
+                  CupertinoSwitch(
+                      value: _switchValue,
+                      onChanged: (value) {
+                        print("change $value");
+                        setState(() {
+                          _switchValue = !_switchValue;
+                        });
+                        this.widget.onUserPhotoLocation(_switchValue);
+                      }),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

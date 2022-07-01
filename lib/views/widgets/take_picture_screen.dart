@@ -1,14 +1,13 @@
 // A screen that allows users to take a picture using a given camera.
-import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:image_picker/image_picker.dart';
 
 class TakePictureScreen extends StatefulWidget {
+  final bool isMulti;
   const TakePictureScreen({
     Key key,
+    this.isMulti = false,
   }) : super(key: key);
 
   @override
@@ -17,6 +16,8 @@ class TakePictureScreen extends StatefulWidget {
 
 class TakePictureScreenState extends State<TakePictureScreen> {
   Color appBarColor = Colors.transparent;
+  final imageQuality = 50;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -35,14 +36,29 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   Widget build(BuildContext context) {
     return Wrap(
       children: [
+        Visibility(
+          visible: isLoading,
+          child: Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.9,
+              child: LinearProgressIndicator(
+                color: AppColor.primaryExtraSofter,
+                backgroundColor: AppColor.primaryExtraSoft,
+              ),
+            ),
+          ),
+        ),
         GestureDetector(
           onTap: () async {
             try {
+              setState(() {
+                this.isLoading = true;
+              });
               // await _initializeControllerFuture;
               // // Attempt to take a picture and get the file `image`
               // // where it was saved.
-              final image = await ImagePicker()
-                  .pickImage(source: ImageSource.camera, imageQuality: 25);
+              final image = await ImagePicker().pickImage(
+                  source: ImageSource.camera, imageQuality: imageQuality);
               //final image = await _controller.takePicture();
 
               Navigator.pop(context, [image]);
@@ -71,15 +87,24 @@ class TakePictureScreenState extends State<TakePictureScreen> {
         GestureDetector(
           onTap: () async {
             try {
+              setState(() {
+                this.isLoading = true;
+              });
               // await _initializeControllerFuture;
-              // // Attempt to take a picture and get the file `image`
-              // // where it was saved.
-              final List<XFile> image =
-                  await ImagePicker().pickMultiImage(imageQuality: 25);
-              //final image = await _controller.takePicture();
+              // Attempt to take a picture and get the file `image`
+              // where it was saved.
+              List<XFile> image = [];
+              if (widget.isMulti) {
+                image = await ImagePicker().pickMultiImage();
+              } else {
+                image = [
+                  await ImagePicker().pickImage(source: ImageSource.gallery)
+                ];
+              }
               Navigator.pop(context, image);
             } catch (e) {
               print(e);
+              print("error take a pic");
             }
           },
           child: Container(
@@ -99,38 +124,6 @@ class TakePictureScreenState extends State<TakePictureScreen> {
         )
       ],
     );
-  }
-
-  _onItemTapped(int index) async {
-    switch (index) {
-      case 0:
-        try {
-          final image =
-              await ImagePicker().pickImage(source: ImageSource.gallery);
-          Navigator.pop(context, image);
-        } catch (e) {
-          print(e);
-        }
-        break;
-      case 1:
-        try {
-          // await _initializeControllerFuture;
-          // // Attempt to take a picture and get the file `image`
-          // // where it was saved.
-          final image =
-              await ImagePicker().pickImage(source: ImageSource.camera);
-          //final image = await _controller.takePicture();
-          Navigator.pop(context, image);
-        } catch (e) {
-          print(e);
-        }
-
-        break;
-      case 2:
-        print("Not implemented yet");
-        break;
-      default:
-    }
   }
 }
 

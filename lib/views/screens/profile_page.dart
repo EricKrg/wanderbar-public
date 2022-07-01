@@ -103,35 +103,47 @@ class _ProfilePageState extends State<ProfilePage> {
               padding: EdgeInsets.symmetric(vertical: 24),
               child: GestureDetector(
                 onTap: () async {
-                  final XFile imageResult = await showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20))),
-                      builder: (context) {
-                        return TakePictureScreen();
-                      });
-                  User user = FirebaseAuth.instance.currentUser;
-                  if (user.photoURL != null) {
-                    QuickLogHelper.instance
-                        .removeFromStorage("/user/${user.email}.jpg");
-                  }
-                  setState(() {
-                    isPhotoLoading = true;
-                  });
-                  TaskSnapshot uploadTask = await QuickLogHelper.instance
-                      .uploadUserImage(File(imageResult.path), user);
+                  try {
+                    final List<XFile> imageResult = await showModalBottomSheet(
+                        context: context,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                topRight: Radius.circular(20))),
+                        builder: (context) {
+                          return TakePictureScreen();
+                        });
 
-                  user.updatePhotoURL(await uploadTask.ref.getDownloadURL());
-                  QuickLogHelper.instance
-                      .createSimpleUser(FirebaseAuth.instance.currentUser);
-                  CachedNetworkImage.evictFromCache(user.photoURL);
-                  setState(() {
-                    isPhotoLoading = false;
-                    tmpImg = imageResult.path;
-                  });
+                    if (imageResult.isNotEmpty && imageResult.first != null) {
+                      setState(() {
+                        isPhotoLoading = true;
+                      });
+                      User user = FirebaseAuth.instance.currentUser;
+                      if (user.photoURL != null) {
+                        QuickLogHelper.instance
+                            .removeFromStorage("/user/${user.email}.jpg");
+                      }
+
+                      TaskSnapshot uploadTask = await QuickLogHelper.instance
+                          .uploadUserImage(File(imageResult.first.path), user);
+
+                      user.updatePhotoURL(
+                          await uploadTask.ref.getDownloadURL());
+                      QuickLogHelper.instance
+                          .createSimpleUser(FirebaseAuth.instance.currentUser);
+                      CachedNetworkImage.evictFromCache(user.photoURL);
+                      setState(() {
+                        isPhotoLoading = false;
+                        tmpImg = imageResult.first.path;
+                      });
+                    }
+                  } catch (e) {
+                    print("Error uploading profile picture $e");
+                    setState(() {
+                      isPhotoLoading = false;
+                    });
+                  }
                 },
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -193,6 +205,12 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             // Section 2 - User Info Wrapper
+            Visibility(
+                visible: this.isPhotoLoading,
+                child: LinearProgressIndicator(
+                  backgroundColor: AppColor.primary.withAlpha(150),
+                  color: AppColor.primarySoft,
+                )),
             Container(
               margin: EdgeInsets.only(top: 24),
               width: MediaQuery.of(context).size.width,

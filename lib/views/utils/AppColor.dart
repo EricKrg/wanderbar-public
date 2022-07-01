@@ -62,12 +62,13 @@ class AnimatedGradient extends StatefulWidget {
 
 class _AnimatedGradientState extends State<AnimatedGradient> {
   List<Color> colorList = [
+    //AppColor.secondaryDarker,
     AppColor.primarySoft,
     AppColor.secondaryShadeDark,
     AppColor.primaryExtraSoft,
     AppColor.primaryExtraSofter,
-    AppColor.secondaryShade,
-    AppColor.primary
+    // AppColor.secondaryShade,
+    // AppColor.primary
   ];
   List<Alignment> alignmentList = [
     Alignment.bottomLeft,
@@ -76,7 +77,7 @@ class _AnimatedGradientState extends State<AnimatedGradient> {
     Alignment.topLeft,
   ];
   int index = 0;
-  Color bottomColor = AppColor.primaryExtraSoft;
+  Color bottomColor = AppColor.secondary;
   Color topColor = AppColor.secondaryShade;
   Alignment begin = Alignment.bottomLeft;
   Alignment end = Alignment.topRight;
