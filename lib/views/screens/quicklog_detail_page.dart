@@ -254,6 +254,7 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
                     Container(
                         height: MediaQuery.of(context).size.height * 0.7,
                         child: MapPositionStream(
+                          editingMode: true,
                           onFinishedRecording: (QuickLogEntry entry) {
                             currentQuickLog.entries.add(entry);
                             quickLogHelper.updateQuickLog(

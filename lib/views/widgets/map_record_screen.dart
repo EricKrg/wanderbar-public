@@ -78,8 +78,10 @@ class _MapRecordScreenState extends State<MapRecordScreen> {
 
 class MapPositionStream extends StatefulWidget {
   final Function(QuickLogEntry) onFinishedRecording;
+  final editingMode;
 
-  const MapPositionStream({Key key, this.onFinishedRecording})
+  const MapPositionStream(
+      {Key key, this.onFinishedRecording, this.editingMode = false})
       : super(key: key);
 
   @override
@@ -90,6 +92,7 @@ class _MapPositionStreamState extends State<MapPositionStream> {
   MapController mapController;
   TextEditingController titelController = TextEditingController();
   bool _hasPermissions = false;
+
   Position currentPosition;
 
   @override
@@ -219,7 +222,8 @@ class _MapPositionStreamState extends State<MapPositionStream> {
                                       fixedPlaces: 4)),
                             ],
                           ),
-                          getTitelWidget(titelController),
+                          if (widget.editingMode)
+                            getTitelWidget(titelController),
                         ],
                       ),
                     ),
@@ -235,35 +239,38 @@ class _MapPositionStreamState extends State<MapPositionStream> {
                                 value: snapshot.data.speed == -1
                                     ? 0.0
                                     : snapshot.data.speed.roundToDouble())),
-                        Container(
-                            margin: EdgeInsets.only(bottom: 16),
-                            decoration: BoxDecoration(
-                                color: AppColor.whiteSoft,
-                                borderRadius: BorderRadius.circular(10)),
-                            child: IconButton(
-                                padding: EdgeInsets.all(2),
-                                onPressed: () {
-                                  widget.onFinishedRecording(QuickLogEntry(
-                                      content: "",
-                                      entryType: QuickLogType.geolocation,
-                                      position: currentPosition,
-                                      recordDate: currentPosition.timestamp,
-                                      titel: titelController != null
-                                          ? titelController.text
-                                          : null));
-                                },
-                                icon: Icon(Icons.add_circle_outline_rounded))),
-                        Container(
-                            margin: EdgeInsets.only(bottom: 16),
-                            decoration: BoxDecoration(
-                                color: AppColor.whiteSoft,
-                                borderRadius: BorderRadius.circular(10)),
-                            child: IconButton(
-                                color: AppColor.warn,
-                                padding: EdgeInsets.all(2),
-                                onPressed: () {},
-                                icon:
-                                    Icon(Icons.radio_button_checked_rounded))),
+                        if (widget.editingMode)
+                          Container(
+                              margin: EdgeInsets.only(bottom: 16),
+                              decoration: BoxDecoration(
+                                  color: AppColor.whiteSoft,
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: IconButton(
+                                  padding: EdgeInsets.all(2),
+                                  onPressed: () {
+                                    widget.onFinishedRecording(QuickLogEntry(
+                                        content: "",
+                                        entryType: QuickLogType.geolocation,
+                                        position: currentPosition,
+                                        recordDate: currentPosition.timestamp,
+                                        titel: titelController != null
+                                            ? titelController.text
+                                            : null));
+                                  },
+                                  icon:
+                                      Icon(Icons.add_circle_outline_rounded))),
+                        if (widget.editingMode)
+                          Container(
+                              margin: EdgeInsets.only(bottom: 16),
+                              decoration: BoxDecoration(
+                                  color: AppColor.whiteSoft,
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: IconButton(
+                                  color: AppColor.warn,
+                                  padding: EdgeInsets.all(2),
+                                  onPressed: () {},
+                                  icon: Icon(
+                                      Icons.radio_button_checked_rounded))),
                         Container(
                             alignment: Alignment.bottomLeft,
                             padding: EdgeInsets.only(right: 8, bottom: 16),
@@ -517,6 +524,7 @@ class AllQuickLogsScreen extends StatefulWidget {
   final bool showCenterBtn;
   final bool interactive;
   final bool isTrip;
+  final bool showCompass;
   const AllQuickLogsScreen(
       {Key key,
       this.docRefs,
@@ -525,6 +533,7 @@ class AllQuickLogsScreen extends StatefulWidget {
       this.showCenterBtn = true,
       this.interactive = true,
       this.isTrip = false,
+      this.showCompass = false,
       this.showQuickLogCarousel})
       : super(key: key);
 
@@ -803,41 +812,122 @@ class _AllQuickLogsScreenState extends State<AllQuickLogsScreen> {
               ]),
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height),
-      if (widget.showCenterBtn)
-        Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  margin: EdgeInsets.only(right: 8, bottom: 8),
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                          color: AppColor.primaryExtraSoft.withAlpha(50),
-                          width: 2),
-                      color: AppColor.whiteSoft,
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Material(
-                      elevation: 10,
-                      borderRadius: BorderRadius.circular(5),
-                      child: IconButton(
-                          splashColor: AppColor.primaryExtraSoft,
-                          splashRadius: 20,
-                          padding: EdgeInsets.all(4),
-                          enableFeedback: true,
-                          constraints: BoxConstraints(),
-                          onPressed: () => _mapController.move(
-                              getCurrentCenter(
-                                  quicklogs[_currentIndex].entries),
-                              getZoomLvl(quicklogs[_currentIndex].entries)),
-                          icon: Icon(Icons.center_focus_strong))),
+
+      Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          widget.showCenterBtn
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(right: 8, bottom: 8),
+                      decoration: BoxDecoration(
+                          border: Border.all(
+                              color: AppColor.primaryExtraSoft.withAlpha(50),
+                              width: 2),
+                          color: AppColor.whiteSoft,
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Material(
+                          elevation: 10,
+                          borderRadius: BorderRadius.circular(5),
+                          child: IconButton(
+                              splashColor: AppColor.primaryExtraSoft,
+                              splashRadius: 20,
+                              padding: EdgeInsets.all(4),
+                              enableFeedback: true,
+                              constraints: BoxConstraints(),
+                              onPressed: () => _mapController.move(
+                                  getCurrentCenter(
+                                      quicklogs[_currentIndex].entries),
+                                  getZoomLvl(quicklogs[_currentIndex].entries)),
+                              icon: Icon(Icons.center_focus_strong))),
+                    )
+                  ],
                 )
-              ],
-            ),
-          ],
-        ),
+              : Container(),
+          widget.showCompass
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(right: 8, bottom: 8),
+                      decoration: BoxDecoration(
+                          border: Border.all(
+                              color: AppColor.primaryExtraSoft.withAlpha(50),
+                              width: 2),
+                          color: AppColor.whiteSoft,
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Material(
+                          elevation: 10,
+                          borderRadius: BorderRadius.circular(5),
+                          child: IconButton(
+                              splashColor: AppColor.primaryExtraSoft,
+                              splashRadius: 20,
+                              padding: EdgeInsets.all(4),
+                              enableFeedback: true,
+                              constraints: BoxConstraints(),
+                              onPressed: () => {
+                                    showModalBottomSheet<dynamic>(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        enableDrag: true,
+                                        clipBehavior:
+                                            Clip.antiAliasWithSaveLayer,
+                                        backgroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20)),
+                                        builder: (c) {
+                                          return ListView(
+                                              shrinkWrap: true,
+                                              padding: EdgeInsets.only(
+                                                  bottom: MediaQuery.of(context)
+                                                      .viewInsets
+                                                      .bottom),
+                                              physics: BouncingScrollPhysics(),
+                                              children: [
+                                                Align(
+                                                  alignment: Alignment.center,
+                                                  child: Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.3,
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 4),
+                                                    height: 4,
+                                                    decoration: BoxDecoration(
+                                                        color: Colors
+                                                            .grey.shade400,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20)),
+                                                  ),
+                                                ),
+                                                Container(
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height *
+                                                            0.7,
+                                                    child: MapPositionStream(
+                                                      onFinishedRecording: null,
+                                                    ))
+                                              ]);
+                                        })
+                                  },
+                              icon: Icon(Icons.my_location_rounded))),
+                    )
+                  ],
+                )
+              : Container(),
+        ],
+      ),
+
       if (quicklogs != null && widget.showQuickLogCarousel)
         createQuickLogCarouselFromList(quicklogs),
       // createQuickLogCarouselFromStream(),

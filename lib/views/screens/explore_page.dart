@@ -24,6 +24,7 @@ class ExplorePage extends StatelessWidget {
               showAllQuicklogs: true,
               showQuickLogCarousel: true,
               isFullScreen: true,
+              showCompass: true,
             )));
   }
 }

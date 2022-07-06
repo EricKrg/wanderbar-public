@@ -438,10 +438,6 @@ class _QuickLogDetailAppBarHeaderState
                                           widget.data.selfRef, widget.data);
                                       Navigator.of(context).pop();
                                       Navigator.of(context).pop();
-                                      // Navigator.of(context).push(
-                                      //     MaterialPageRoute(
-                                      //         builder: (context) =>
-                                      //             HomePage()));
                                     },
                                     icon: Icon(Icons.delete_forever_rounded),
                                     color: AppColor.warn))
