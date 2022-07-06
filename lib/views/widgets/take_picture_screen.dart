@@ -61,7 +61,8 @@ class TakePictureScreenState extends State<TakePictureScreen> {
                   source: ImageSource.camera, imageQuality: imageQuality);
               //final image = await _controller.takePicture();
 
-              Navigator.pop(context, [image]);
+              Navigator.pop(
+                  context, PictureResult([image], ImageSource.camera));
             } catch (e) {
               print(e);
             }
@@ -101,7 +102,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
                   await ImagePicker().pickImage(source: ImageSource.gallery)
                 ];
               }
-              Navigator.pop(context, image);
+              Navigator.pop(context, PictureResult(image, ImageSource.gallery));
             } catch (e) {
               print(e);
               print("error take a pic");
@@ -171,4 +172,11 @@ class _MediaBottomAddNavigationBarState
       ),
     );
   }
+}
+
+class PictureResult {
+  final List<XFile> files;
+  final ImageSource source;
+
+  PictureResult(this.files, this.source);
 }

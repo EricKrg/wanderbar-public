@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:wanderbar/models/core/recipe.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
@@ -90,7 +91,7 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
     switch (index) {
       // photo
       case 0:
-        final List<XFile> imageResults = await showModalBottomSheet(
+        final PictureResult imageResults = await showModalBottomSheet(
             context: context,
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
@@ -103,10 +104,10 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
 
         List<Map<String, IfdTag>> exifs = [];
 
-        if (imageResults == null || imageResults.isEmpty) {
+        if (imageResults == null || imageResults.files.isEmpty) {
           return;
         }
-        await Future.forEach(imageResults, (file) async {
+        await Future.forEach(imageResults.files, (file) async {
           exifs.add(await readExifFromBytes(await file.readAsBytes()));
         });
 
@@ -115,9 +116,10 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
             builder: (BuildContext context) {
               return RecordedPicture(
                   currentQuickLog: currentQuickLog,
-                  files: imageResults,
+                  files: imageResults.files,
                   position: position,
                   exifs: exifs,
+                  locationSelect: imageResults.source == ImageSource.gallery,
                   recordDate: recordDate);
             });
         break;
@@ -382,6 +384,10 @@ class RecordedPicture extends StatelessWidget {
   final QuickLog currentQuickLog;
   final Position position;
   final List<Map<String, IfdTag>> exifs;
+  final bool locationSelect;
+
+  List<String> titles = [];
+  List<Position> positions = [];
 
   RecordedPicture(
       {Key key,
@@ -389,14 +395,16 @@ class RecordedPicture extends StatelessWidget {
       this.recordDate,
       this.currentQuickLog,
       this.position,
+      this.locationSelect = true,
       this.exifs})
-      : super(key: key);
+      : super(key: key) {
+    titles = List.generate(files.length, (i) => "");
+    positions = List.generate(files.length, (_) => position);
+  }
 
   @override
   Widget build(BuildContext context) {
     var hintText = "Add Titel";
-    final titles = List.generate(files.length, (i) => "");
-    final positions = List.generate(files.length, (_) => position);
     return AlertDialog(
         contentPadding: EdgeInsets.zero,
         backgroundColor: Colors.transparent,
@@ -461,18 +469,25 @@ class RecordedPicture extends StatelessWidget {
                       ),
                     ),
                     child: PictureInfo(
+                        locationSelect: locationSelect,
                         hintText: hintText,
                         recordDate: recordDate,
                         onTitle: (title) {
+                          print("on title");
                           titles[index] = title;
                         },
                         onUserPhotoLocation: (usePhotoLocation) {
                           print("photolocatiopn $usePhotoLocation");
+                          if (!this.locationSelect) {
+                            positions[index] = position;
+                            return;
+                          }
                           if (usePhotoLocation) {
                             positions[index] = exifPostion;
                           } else {
                             positions[index] = position;
                           }
+                          print("done location");
                         }),
                   );
                 },
@@ -545,6 +560,7 @@ class PictureInfo extends StatefulWidget {
   final hintText;
   final TextEditingController controller;
   final recordDate;
+  final bool locationSelect;
   final Function(bool) onUserPhotoLocation;
   final Function(String) onTitle;
 
@@ -554,6 +570,7 @@ class PictureInfo extends StatefulWidget {
       this.controller,
       this.recordDate,
       this.onTitle,
+      this.locationSelect = true,
       this.onUserPhotoLocation})
       : super(key: key);
 
@@ -631,31 +648,32 @@ class PictureInfoState extends State<PictureInfo> {
                   ],
                 ),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Use Picture Location",
-                    style: TextStyle(
-                        color: Colors.white,
-                        decorationColor: Colors.white,
-                        fontSize: 12,
-                        height: 150 / 100,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'inter'),
-                  ),
-                  CupertinoSwitch(
-                      value: _switchValue,
-                      onChanged: (value) {
-                        print("change $value");
-                        setState(() {
-                          _switchValue = !_switchValue;
-                        });
-                        this.widget.onUserPhotoLocation(_switchValue);
-                      }),
-                ],
-              ),
+              if (widget.locationSelect)
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Use Picture Location",
+                      style: TextStyle(
+                          color: Colors.white,
+                          decorationColor: Colors.white,
+                          fontSize: 12,
+                          height: 150 / 100,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'inter'),
+                    ),
+                    CupertinoSwitch(
+                        value: _switchValue,
+                        onChanged: (value) {
+                          print("change $value");
+                          setState(() {
+                            _switchValue = !_switchValue;
+                          });
+                          this.widget.onUserPhotoLocation(_switchValue);
+                        }),
+                  ],
+                ),
             ],
           ),
         ),

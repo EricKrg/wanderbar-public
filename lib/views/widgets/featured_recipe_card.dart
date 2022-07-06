@@ -42,7 +42,7 @@ class FeaturedRecipeCard extends StatelessWidget {
       },
       // Card Wrapper
       child: Container(
-          width: MediaQuery.of(context).size.width * 0.8,
+          width: MediaQuery.of(context).size.width * 0.55,
           height: 220,
           clipBehavior: Clip.antiAlias,
           alignment: Alignment.bottomCenter,

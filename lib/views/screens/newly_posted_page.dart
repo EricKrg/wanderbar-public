@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:wanderbar/models/core/recipe.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
@@ -16,14 +17,15 @@ class NewlyPostedPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          brightness: Brightness.dark,
-          backgroundColor: AppColor.primary,
+          flexibleSpace: AnimatedGradient(),
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
           centerTitle: true,
           elevation: 0,
           title: Text('All QuickLogs',
               style: TextStyle(
+                  color: Colors.black,
                   fontFamily: 'inter',
-                  fontWeight: FontWeight.w400,
+                  fontWeight: FontWeight.w500,
                   fontSize: 16)),
           leading: Navigator.canPop(context)
               ? IconButton(
@@ -62,7 +64,7 @@ class NewlyPostedPage extends StatelessWidget {
           itemCount: length,
           physics: BouncingScrollPhysics(),
           separatorBuilder: (context, index) {
-            return SizedBox(height: 16);
+            return SizedBox(height: 4);
           },
           itemBuilder: (context, index) {
             return Dismissible(

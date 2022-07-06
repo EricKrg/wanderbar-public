@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wanderbar/models/core/recipe.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
@@ -38,37 +39,29 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColor.primary,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        flexibleSpace: AnimatedGradient(),
         elevation: 0,
         centerTitle: true,
         title: Text('My Profile',
             style: TextStyle(
+                color: Colors.black,
                 fontFamily: 'inter',
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w500,
                 fontSize: 16)),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         actions: [
-          TextButton(
+          IconButton(
             onPressed: () {
               FirebaseAuth.instance.signOut();
               Navigator.of(context).pop();
             },
-            child: Text(
-              'logout',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600),
-            ),
-            style: TextButton.styleFrom(
-                primary: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(100))),
+            icon: Icon(Icons.logout_rounded, color: Colors.black),
           ),
           IconButton(
               onPressed: () {
@@ -87,7 +80,7 @@ class _ProfilePageState extends State<ProfilePage> {
               },
               icon: Icon(
                 Icons.edit_rounded,
-                color: Colors.white,
+                color: Colors.black,
               ))
         ],
       ),
@@ -99,7 +92,7 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             // Section 1 - Profile Picture Wrapper
             Container(
-              color: AppColor.primary,
+              color: AppColor.whiteSoft,
               padding: EdgeInsets.symmetric(vertical: 24),
               child: GestureDetector(
                 onTap: () async {
@@ -194,10 +187,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             style: TextStyle(
                                 fontFamily: 'inter',
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white)),
+                                color: Colors.black)),
                         SizedBox(width: 8),
                         SvgPicture.asset('assets/icons/camera.svg',
-                            color: Colors.white),
+                            color: Colors.black),
                       ],
                     )
                   ],

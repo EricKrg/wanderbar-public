@@ -61,13 +61,14 @@ class AnimatedGradient extends StatefulWidget {
 }
 
 class _AnimatedGradientState extends State<AnimatedGradient> {
+  Future<dynamic> timer;
   List<Color> colorList = [
     //AppColor.secondaryDarker,
     AppColor.primarySoft,
     AppColor.secondaryShadeDark,
     AppColor.primaryExtraSoft,
-    AppColor.primaryExtraSofter,
-    // AppColor.secondaryShade,
+    //AppColor.primaryExtraSofter,
+    AppColor.secondaryShade,
     // AppColor.primary
   ];
   List<Alignment> alignmentList = [
@@ -85,13 +86,20 @@ class _AnimatedGradientState extends State<AnimatedGradient> {
   @override
   void initState() {
     print("init animation background");
-    Future.delayed(Duration(seconds: 2)).then((value) {
-      setState(() {
-        print("set bottom color");
-        bottomColor = AppColor.whiteSoft;
-      });
+    timer = Future.delayed(Duration(seconds: 2)).then((value) {
+      if (this.mounted)
+        setState(() {
+          print("set bottom color");
+          bottomColor = AppColor.whiteSoft;
+        });
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    timer = null;
+    super.dispose();
   }
 
   @override

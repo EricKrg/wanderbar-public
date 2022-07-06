@@ -29,16 +29,17 @@ class _SearchPageState extends State<SearchPage> {
     print(searchInputController.text.isEmpty);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColor.primary,
+        flexibleSpace: AnimatedGradient(),
         elevation: 0,
         centerTitle: true,
         title: Text('Search',
             style: TextStyle(
+                color: Colors.black,
                 fontFamily: 'inter',
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w500,
                 fontSize: 16)),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -52,7 +53,7 @@ class _SearchPageState extends State<SearchPage> {
           Container(
             width: MediaQuery.of(context).size.width,
             // height: 145,
-            color: AppColor.primary,
+            // color: AppColor.primary,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +71,7 @@ class _SearchPageState extends State<SearchPage> {
                           margin: EdgeInsets.only(right: 15),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: AppColor.primarySoft),
+                              color: AppColor.whiteSoft),
                           child: TextField(
                             controller: searchInputController,
                             onSubmitted: (value) {
@@ -144,7 +145,7 @@ class _SearchPageState extends State<SearchPage> {
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: AppColor.secondary,
+                            color: AppColor.whiteSoft,
                           ),
                           child: SvgPicture.asset('assets/icons/filter.svg'),
                         ),
@@ -180,13 +181,12 @@ class _SearchPageState extends State<SearchPage> {
                             child: Text(
                               searchTerms[index],
                               style: TextStyle(
-                                  color: Colors.white.withOpacity(0.7),
+                                  color: AppColor.primary,
                                   fontWeight: FontWeight.w700),
                             ),
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(
-                                  color: Colors.white.withOpacity(0.15),
-                                  width: 2),
+                              side:
+                                  BorderSide(color: AppColor.primary, width: 2),
                             ),
                           ),
                         );

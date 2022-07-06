@@ -30,11 +30,6 @@ class StatefulHomePage extends StatefulWidget {
 }
 
 class _StatefulHomePageState extends State<StatefulHomePage> {
-  List<Recipe> featuredRecipe;
-  List<Recipe> recommendationRecipe;
-  List<Recipe> newlyPostedRecipe;
-  RecipeHelper recipeHelper = RecipeHelper();
-
   ScrollController _scrollController = ScrollController();
 
   QuickLogHelper quickLogHelper = QuickLogHelper.instance;
@@ -63,7 +58,10 @@ class _StatefulHomePageState extends State<StatefulHomePage> {
           },
         ),
         body: Stack(children: [
-          AnimatedGradient(),
+          Container(
+            child: AnimatedGradient(),
+            height: MediaQuery.of(context).size.height * 0.5,
+          ),
           HomePageContent(scrollController: this._scrollController)
         ]));
   }
@@ -99,6 +97,7 @@ class HomePageContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // search
             Container(
               margin: EdgeInsets.only(top: 10),
               child: DummySearchBar(
@@ -108,6 +107,7 @@ class HomePageContent extends StatelessWidget {
                 },
               ),
             ),
+
             Container(
               margin: EdgeInsets.only(top: 12),
               padding: EdgeInsets.symmetric(horizontal: 16),
@@ -118,7 +118,7 @@ class HomePageContent extends StatelessWidget {
                   Text(
                     'My Trips',
                     style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'inter'),
@@ -127,7 +127,7 @@ class HomePageContent extends StatelessWidget {
                     onPressed: () {},
                     child: Text('see all'),
                     style: TextButton.styleFrom(
-                        primary: Colors.white,
+                        primary: Colors.black,
                         textStyle: TextStyle(
                             fontWeight: FontWeight.w400, fontSize: 14)),
                   ),
@@ -162,7 +162,6 @@ class HomePageContent extends StatelessWidget {
                               photo: AssetHelper.getRandomBackgroundAsset(),
                               quickLogs: [],
                               sharedWith: []);
-
                           var updatedTrip = await QuickLogHelper.instance
                               .addTrip(FirebaseAuth.instance.currentUser, trip);
                           Navigator.of(context).push(MaterialPageRoute(
@@ -237,8 +236,12 @@ class HomePageContent extends StatelessWidget {
                 margin: EdgeInsets.only(bottom: 16),
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  'Your latest Memories ...',
-                  style: TextStyle(color: Colors.black),
+                  'Your latest Memories',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'inter'),
                 ),
               ),
               // Content
@@ -261,7 +264,7 @@ class HomePageContent extends StatelessWidget {
                           ));
                     }
                     return Container(
-                      height: 174,
+                      height: 250,
                       child: ListView.separated(
                         shrinkWrap: true,
                         physics: BouncingScrollPhysics(),
@@ -449,8 +452,7 @@ class HomePageContent extends StatelessWidget {
               ));
         }
         return Container(
-            margin: EdgeInsets.symmetric(vertical: 4),
-            height: 240,
+            height: 300,
             child: ListView.separated(
               itemCount: length,
               padding: EdgeInsets.symmetric(horizontal: 16),
@@ -463,8 +465,14 @@ class HomePageContent extends StatelessWidget {
                 );
               },
               itemBuilder: (context, index) {
-                // return Text("data");
-                return FeaturedRecipeCard(data: res[index]);
+                return Container(
+                    height: 200,
+                    margin: EdgeInsets.only(bottom: 10),
+                    child: Material(
+                        clipBehavior: Clip.antiAlias,
+                        elevation: 5,
+                        borderRadius: BorderRadius.circular(10),
+                        child: FeaturedRecipeCard(data: res[index])));
               },
             ));
       },

@@ -275,7 +275,7 @@ class _TripPageState extends State<TripPage> {
                                     itemCount: trip.quickLogs.length,
                                     physics: BouncingScrollPhysics(),
                                     separatorBuilder: (context, index) {
-                                      return SizedBox(height: 16);
+                                      return SizedBox(height: 4);
                                     },
                                     itemBuilder: (context, index) {
                                       return createTripQuickLogTilesFromStream(

@@ -7,6 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:wanderbar/models/core/recipe.dart';
 import 'package:wanderbar/models/helper/asset_helper.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
+import 'package:wanderbar/views/screens/home_page.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:wanderbar/views/widgets/map_record_screen.dart';
 import 'package:intl/intl.dart';
@@ -420,10 +421,42 @@ class _QuickLogDetailAppBarHeaderState
       actions: [
         IconButton(
             onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+                        child: AlertDialog(
+                          backgroundColor: Colors.white,
+                          content: Text(
+                              "Are you sure you want to delete this QuickLog?"),
+                          actions: [
+                            Center(
+                                child: IconButton(
+                                    onPressed: () {
+                                      QuickLogHelper.instance.deleteQuickLog(
+                                          widget.data.selfRef, widget.data);
+                                      Navigator.of(context).pop();
+                                      Navigator.of(context).pop();
+                                      // Navigator.of(context).push(
+                                      //     MaterialPageRoute(
+                                      //         builder: (context) =>
+                                      //             HomePage()));
+                                    },
+                                    icon: Icon(Icons.delete_forever_rounded),
+                                    color: AppColor.warn))
+                          ],
+                        ));
+                  });
+            },
+            icon: Icon(Icons.delete),
+            color: this.iconcColor),
+        IconButton(
+            onPressed: () {
               getbottomModalMap(context, [widget.data.selfRef], false);
             },
             icon: Icon(Icons.map_rounded),
-            color: this.iconcColor)
+            color: this.iconcColor),
       ],
     );
   }

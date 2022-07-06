@@ -18,27 +18,30 @@ class RecommendationRecipeCard extends StatelessWidget {
             builder: (context) => FullScreenLocalImage(url: data.fileUrl)));
       },
       child: Container(
-        width: 180,
+        // width: 180,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Recipe Photo
-            CachedNetworkImage(
-              cacheManager: CacheManager(Config(
-                "logImages",
-                stalePeriod: const Duration(days: 7),
-                //one week cache period
-              )),
-              imageUrl: data.fileUrl,
-              imageBuilder: (context, imageProvider) => Container(
-                height: 120,
-                width: 180,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.blueGrey,
-                  image: DecorationImage(
-                    image: imageProvider,
-                    fit: BoxFit.cover,
+            Material(
+              elevation: 10,
+              borderRadius: BorderRadius.circular(10),
+              child: CachedNetworkImage(
+                cacheManager: CacheManager(Config(
+                  "logImages",
+                  stalePeriod: const Duration(days: 7),
+                  //one week cache period
+                )),
+                imageUrl: data.fileUrl,
+                imageBuilder: (context, imageProvider) => Container(
+                  height: 200,
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.blueGrey,
+                    image: DecorationImage(
+                      image: imageProvider,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),

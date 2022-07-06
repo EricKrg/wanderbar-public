@@ -63,7 +63,7 @@ class CustomAppBarState extends State<CustomAppBar> {
         duration: Duration(milliseconds: 300),
         child: AppBar(
             systemOverlayStyle: SystemUiOverlayStyle.dark,
-            backgroundColor: AppColor.primary.withAlpha(80),
+            backgroundColor: AppColor.primary.withOpacity(0.2),
             title: Text('Wanderbar',
                 style: TextStyle(
                     color: AppColor.whiteSoft,
