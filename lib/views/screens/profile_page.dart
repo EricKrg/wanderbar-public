@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -97,18 +96,20 @@ class _ProfilePageState extends State<ProfilePage> {
               child: GestureDetector(
                 onTap: () async {
                   try {
-                    final List<XFile> imageResult = await showModalBottomSheet(
-                        context: context,
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                topRight: Radius.circular(20))),
-                        builder: (context) {
-                          return TakePictureScreen();
-                        });
+                    final PictureResult imageResult =
+                        await showModalBottomSheet(
+                            context: context,
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(20),
+                                    topRight: Radius.circular(20))),
+                            builder: (context) {
+                              return TakePictureScreen();
+                            });
 
-                    if (imageResult.isNotEmpty && imageResult.first != null) {
+                    if (imageResult.files.isNotEmpty &&
+                        imageResult.files.first != null) {
                       setState(() {
                         isPhotoLoading = true;
                       });
@@ -119,7 +120,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       }
 
                       TaskSnapshot uploadTask = await QuickLogHelper.instance
-                          .uploadUserImage(File(imageResult.first.path), user);
+                          .uploadUserImage(
+                              File(imageResult.files.first.path), user);
 
                       user.updatePhotoURL(
                           await uploadTask.ref.getDownloadURL());
@@ -128,7 +130,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       CachedNetworkImage.evictFromCache(user.photoURL);
                       setState(() {
                         isPhotoLoading = false;
-                        tmpImg = imageResult.first.path;
+                        tmpImg = imageResult.files.first.path;
                       });
                     }
                   } catch (e) {

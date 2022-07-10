@@ -266,6 +266,9 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
                   ]);
             });
         break;
+      case 4:
+        print("weather");
+        break;
       default:
     }
   }

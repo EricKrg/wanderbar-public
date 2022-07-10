@@ -10,9 +10,11 @@ import 'package:wanderbar/models/helper/quick_log_helper.dart';
 import 'package:wanderbar/views/screens/page_switcher.dart';
 import 'package:wanderbar/views/screens/quicklog_detail_page.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
+import 'package:wanderbar/views/widgets/info_container.dart';
 import 'package:wanderbar/views/widgets/map_record_screen.dart';
 import 'package:wanderbar/views/widgets/quick_log_tile.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:wanderbar/views/widgets/user_card.dart';
 
 class TripPage extends StatefulWidget {
   final Trip data;
@@ -210,6 +212,7 @@ class _TripPageState extends State<TripPage> {
             return Center(child: Text("Could not resolve trip data"));
           }
           return Stack(alignment: Alignment.topCenter, children: [
+            // background map
             Container(
               child: AllQuickLogsScreen(
                   docRefs: trip.quickLogs,
@@ -218,42 +221,22 @@ class _TripPageState extends State<TripPage> {
                   showQuickLogCarousel: false,
                   showCenterBtn: false),
             ),
+            // blur
             ClipRect(
                 child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
                     child: Container(
-                        height: MediaQuery.of(context).size.height,
-                        decoration: BoxDecoration(
-                            // color:AppColor.whiteSoft.withOpacity(0),
-                            )))),
+                      height: MediaQuery.of(context).size.height,
+                    ))),
             Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: (trip.quickLogs.length == 0)
-                    ? Center(
-                        child: Container(
-                            height: 200,
-                            decoration: BoxDecoration(
-                                color: AppColor.whiteSoft.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Center(
-                                child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text("No logs added yet!",
-                                    style: TextStyle(
-                                        color: Colors.grey.shade800,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 18)),
-                                Container(
-                                    padding: EdgeInsets.all(20),
-                                    child: Text(
-                                        "Try adding some existing Logs, or create a new Log in order to at them to this Trip.",
-                                        textAlign: TextAlign.justify,
-                                        style: TextStyle(
-                                            color: Colors.grey.shade800,
-                                            fontWeight: FontWeight.w300))),
-                              ],
-                            ))))
+                    ? InfoContainer(
+                        icon: Icons.golf_course_rounded,
+                        title: "No logs added yet!",
+                        subTitle:
+                            "Try adding some existing Logs, or create a new Log in order to at them to this Trip.",
+                      )
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.max,
@@ -269,7 +252,7 @@ class _TripPageState extends State<TripPage> {
                                 ]),
                             Expanded(
                                 child: ListView.separated(
-                                    padding: EdgeInsets.only(bottom: 50),
+                                    padding: EdgeInsets.only(bottom: 20),
                                     scrollDirection: Axis.vertical,
                                     shrinkWrap: true,
                                     itemCount: trip.quickLogs.length,
@@ -417,8 +400,7 @@ class _TripPageState extends State<TripPage> {
                 .toList();
 
             return Container(
-                // margin: EdgeInsets.only(bottom: 15),
-                height: 50,
+                height: 100,
                 child: ListView.separated(
                   itemCount: editors.length,
                   // padding: EdgeInsets.symmetric(horizontal: 16),
@@ -431,47 +413,7 @@ class _TripPageState extends State<TripPage> {
                     );
                   },
                   itemBuilder: (context, index) {
-                    return Container(
-                      // margin: EdgeInsets.all(8),
-                      child: ClipRect(
-                        child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
-                            child:
-                                Wrap(alignment: WrapAlignment.start, children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                      padding: EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(5),
-                                        color: Colors.black.withOpacity(0.26),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            "Editor: ",
-                                            style: TextStyle(
-                                                color: AppColor.whiteSoft,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w200,
-                                                fontFamily: 'inter'),
-                                          ),
-                                          Text(
-                                            "${editors[index].displayName}",
-                                            style: TextStyle(
-                                                color: AppColor.whiteSoft,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: 'inter'),
-                                          ),
-                                        ],
-                                      )),
-                                ],
-                              )
-                            ])),
-                      ),
-                    );
+                    return UserCard(user: editors[index]);
                   },
                 ));
           } else {
@@ -487,50 +429,9 @@ class _TripPageState extends State<TripPage> {
           if (!snapshot.hasData) return Text("Loading...");
           if (snapshot.hasData) {
             final owner = UserSimple.fromJson(snapshot.data.data());
-
-            return Container(
-                // margin: EdgeInsets.only(bottom: 15),
-                height: 50,
-                margin: EdgeInsets.only(right: 4),
-                child: Container(
-                    // margin: EdgeInsets.all(8),
-                    child: ClipRect(
-                  child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
-                      child: Wrap(alignment: WrapAlignment.start, children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.black.withOpacity(0.26),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      "Owner: ",
-                                      style: TextStyle(
-                                          color: AppColor.whiteSoft,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w200,
-                                          fontFamily: 'inter'),
-                                    ),
-                                    Text(
-                                      "${owner.displayName}",
-                                      style: TextStyle(
-                                          color: AppColor.whiteSoft,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          fontFamily: 'inter'),
-                                    ),
-                                  ],
-                                )),
-                          ],
-                        )
-                      ])),
-                )));
+            return UserCard(
+              user: owner,
+            );
           } else {
             return Container();
           }

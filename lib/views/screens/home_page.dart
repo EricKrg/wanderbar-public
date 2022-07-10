@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:wanderbar/models/core/recipe.dart';
 import 'package:wanderbar/models/helper/asset_helper.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
-import 'package:wanderbar/models/helper/recipe_helper.dart';
 import 'package:wanderbar/views/screens/newly_posted_page.dart';
 import 'package:wanderbar/views/screens/profile_page.dart';
 import 'package:wanderbar/views/screens/quicklog_detail_page.dart';
