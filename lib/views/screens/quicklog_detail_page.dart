@@ -18,6 +18,7 @@ import 'package:wanderbar/models/helper/quick_log_helper.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:wanderbar/views/widgets/custom_bottom_add_bar%20copy.dart';
 import 'package:wanderbar/views/widgets/map_record_screen.dart';
+import 'package:wanderbar/views/widgets/modals/weather_modal.dart';
 import 'package:wanderbar/views/widgets/quick_log_header.dart';
 import 'package:wanderbar/views/widgets/quicklogentry_tile.dart';
 import 'package:wanderbar/views/widgets/record_audio_screen.dart';
@@ -268,6 +269,17 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
         break;
       case 4:
         print("weather");
+        showModalBottomSheet<dynamic>(
+            context: context,
+            isScrollControlled: true,
+            enableDrag: true,
+            clipBehavior: Clip.antiAliasWithSaveLayer,
+            backgroundColor: Colors.white,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            builder: (c) {
+              return WeatherControl();
+            });
         break;
       default:
     }
