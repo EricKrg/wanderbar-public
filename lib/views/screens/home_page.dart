@@ -342,17 +342,25 @@ class HomePageContent extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 6),
                   child: GestureDetector(
                     onTap: () async {
-                      QuickLog newQl = QuickLog(
-                          description: "",
-                          recordDate: DateTime.now(),
-                          entries: [],
-                          photo: AssetHelper.getRandomIconAsset(),
-                          titel: "");
-                      await QuickLogHelper.instance.addQuickLog(
-                          FirebaseAuth.instance.currentUser, newQl);
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => QuickLogDetailPage(
-                              key: UniqueKey(), data: newQl)));
+                      if (await QuickLogHelper.instance.hasInternetConn()) {
+                        QuickLog newQl = QuickLog(
+                            description: "",
+                            recordDate: DateTime.now(),
+                            entries: [],
+                            photo: AssetHelper.getRandomIconAsset(),
+                            titel: "");
+                        await QuickLogHelper.instance.addQuickLog(
+                            FirebaseAuth.instance.currentUser, newQl);
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => QuickLogDetailPage(
+                                key: UniqueKey(), data: newQl)));
+                        return;
+                      }
+
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content:
+                            Text('No Internet connection, cant create Log.'),
+                      ));
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,

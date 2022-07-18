@@ -451,4 +451,15 @@ class QuickLogHelper {
       List<String> searchTerms, String collection) {
     return _db.collection(collection).where('titel', whereIn: searchTerms);
   }
+
+  Future<bool> hasInternetConn() async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        return true;
+      }
+    } on SocketException catch (_) {
+      return false;
+    }
+  }
 }
