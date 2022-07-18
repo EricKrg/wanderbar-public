@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/models/helper/asset_helper.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
 import 'package:wanderbar/views/screens/home_page.dart';

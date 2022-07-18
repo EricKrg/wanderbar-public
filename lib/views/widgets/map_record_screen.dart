@@ -8,13 +8,16 @@ import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
+import 'package:wanderbar/models/helper/weather_helper.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:wanderbar/views/widgets/audio_log_tile%20.dart';
 import 'package:wanderbar/views/widgets/compass.dart';
 import 'package:wanderbar/views/widgets/geolocation_log_tile.dart';
+import 'package:wanderbar/views/widgets/modals/weather_modal.dart';
 import 'package:wanderbar/views/widgets/photo_log_tile%20.dart';
 import 'package:wanderbar/views/widgets/quick_log_tile.dart';
 import 'package:wanderbar/views/widgets/text_log_tile.dart';
@@ -1105,7 +1108,7 @@ class _AllQuickLogsScreenState extends State<AllQuickLogsScreen> {
     return res.whereType<Marker>().toList();
   }
 
-  Icon getIconsForLogType(QuickLogEntry entry) {
+  Widget getIconsForLogType(QuickLogEntry entry) {
     var isEntrySelected = false;
     if (_selectedEntry != null) {
       isEntrySelected = _selectedEntry.content == entry.content;
@@ -1139,6 +1142,13 @@ class _AllQuickLogsScreenState extends State<AllQuickLogsScreen> {
           size: isEntrySelected ? 45 : 35.0,
         );
         break;
+      case QuickLogType.weather:
+        return Icon(
+          Icons.sunny,
+          color: isEntrySelected ? AppColor.warn : AppColor.primary,
+          size: isEntrySelected ? 45 : 35.0,
+        );
+        break;
 
       default:
         return Icon(
@@ -1165,6 +1175,16 @@ class _AllQuickLogsScreenState extends State<AllQuickLogsScreen> {
         return AudioLogTile(entry: entry);
       case QuickLogType.geolocation:
         return GeolocationLogTile(data: entry, noMap: true);
+      case QuickLogType.weather:
+        final contentSplit = entry.content.split(":");
+        final preset = WeatherHelper().getEntry(contentSplit.first);
+        final weatherInfo = WeatherInfo(int.parse(contentSplit.last),
+            contentSplit.first, preset.description, preset.iconPath);
+        return WeatherTile(
+            recordDate: entry.recordDate,
+            key: ValueKey(entry.uuid),
+            manualInput: false,
+            weatherInfo: weatherInfo);
       default:
     }
   }

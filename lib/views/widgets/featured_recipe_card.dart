@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
 import 'package:wanderbar/views/screens/trip_screen.dart';
 import 'package:wanderbar/views/widgets/map_record_screen.dart';

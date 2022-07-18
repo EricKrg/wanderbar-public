@@ -1,19 +1,51 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:numberpicker/numberpicker.dart';
+import 'package:wanderbar/models/helper/weather_helper.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
+import 'package:weather/weather.dart';
 
 enum WeatherInput { online, manual }
 
+class WeatherInfo {
+  int temp;
+  String code;
+  String weather;
+  String weatherIcon;
+
+  WeatherInfo(this.temp, this.code, this.weather, this.weatherIcon);
+}
+
 class WeatherControl extends StatefulWidget {
-  const WeatherControl({Key key}) : super(key: key);
+  final Function(WeatherInfo weatherInfo) onFinished;
+  final Position position;
+  final DateTime recordDate;
+  const WeatherControl(
+      {Key key, this.onFinished, this.position, this.recordDate})
+      : super(key: key);
 
   @override
   State<WeatherControl> createState() => _WeatherControlState();
 }
 
 class _WeatherControlState extends State<WeatherControl> {
-  WeatherInput _selectedSegment = WeatherInput.online;
+  WeatherInfo weatherInfo;
+  WeatherHelper weatherHelper = WeatherHelper();
+
+  @override
+  void initState() {
+    super.initState();
+    final first = weatherHelper.getAllWeatherStates().first;
+    final initPreset = weatherHelper.getEntry(first);
+    weatherInfo =
+        WeatherInfo(12, first, initPreset.description, initPreset.iconPath);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,43 +67,16 @@ class _WeatherControlState extends State<WeatherControl> {
             ),
           ),
           Container(
-              margin: EdgeInsets.only(left: 72, right: 72, top: 8),
-              child: CupertinoSlidingSegmentedControl(
-                backgroundColor: CupertinoColors.systemGrey2,
-                thumbColor: AppColor.whiteSoft,
-                // This represents the currently selected segmented control.
-                groupValue: _selectedSegment,
-                // Callback that sets the selected segmented control.
-                onValueChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedSegment = value;
-                    });
-                  }
-                },
-                children: const <WeatherInput, Widget>{
-                  WeatherInput.online: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'online',
-                      style: TextStyle(color: CupertinoColors.white),
-                    ),
-                  ),
-                  WeatherInput.manual: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'manual',
-                      style: TextStyle(color: CupertinoColors.white),
-                    ),
-                  )
-                },
-              )),
-          Container(
-              height: MediaQuery.of(context).size.height * 0.4,
+              height: MediaQuery.of(context).size.height * 0.24,
+              margin: EdgeInsets.all(20),
               child: Column(
-                // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  WeatherTile(),
+                  WeatherTile(
+                      recordDate: widget.recordDate,
+                      weatherInfo: weatherInfo,
+                      manualInput: true,
+                      latLng: LatLng(
+                          widget.position.latitude, widget.position.longitude)),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -79,7 +84,10 @@ class _WeatherControlState extends State<WeatherControl> {
                       Container(
                         padding: EdgeInsets.only(bottom: 15),
                         child: IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            print("add ${weatherInfo.weather}");
+                            widget.onFinished(weatherInfo);
+                          },
                           icon: Icon(Icons.add_circle_rounded),
                         ),
                       ),
@@ -91,87 +99,280 @@ class _WeatherControlState extends State<WeatherControl> {
   }
 }
 
-class WeatherTile extends StatelessWidget {
+class WeatherTile extends StatefulWidget {
   final bool manualInput;
+  final WeatherInfo weatherInfo;
+  final LatLng latLng;
+  final DateTime recordDate;
 
-  const WeatherTile({Key key, this.manualInput = false}) : super(key: key);
+  const WeatherTile(
+      {Key key,
+      this.manualInput = false,
+      this.weatherInfo,
+      this.latLng,
+      this.recordDate})
+      : super(key: key);
+
+  @override
+  State<WeatherTile> createState() => WeatherTileState();
+}
+
+class WeatherTileState extends State<WeatherTile> {
+  final DateFormat formatter = DateFormat('dd.MM.yyyy');
+  final DateFormat formatterTime = DateFormat('HH:mm');
+  WeatherInfo currentWeather;
+  WeatherHelper weatherHelper = WeatherHelper();
+  @override
+  void initState() {
+    super.initState();
+    if (widget.manualInput && widget.latLng != null) {
+      weatherHelper
+          .getWeather(widget.latLng.latitude, widget.latLng.longitude)
+          .then((value) {
+        print("code ${value.weatherConditionCode}");
+        print("desc ${value.weatherDescription}");
+        print("temp ${value.temperature}");
+        final WeatherPreset weatherPreset =
+            weatherHelper.getWeatherInfoFromCode(value.weatherConditionCode);
+
+        setState(() {
+          currentWeather.temp = value.temperature.celsius.floor();
+          currentWeather.weather = weatherPreset.description;
+          currentWeather.weatherIcon = weatherPreset.iconPath;
+          currentWeather.code =
+              weatherHelper.getWeatherCode(value.weatherConditionCode);
+        });
+      });
+    }
+    currentWeather = widget.weatherInfo;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: MediaQuery.of(context).size.width * 0.8,
-        margin: EdgeInsets.symmetric(vertical: 20),
+        width: MediaQuery.of(context).size.width,
         child: Material(
             clipBehavior: Clip.antiAlias,
-            color: AppColor.whiteSoft,
-            elevation: 0,
+            color: AppColor.primary.withAlpha(200),
+            elevation: 5,
             borderRadius: BorderRadius.circular(10),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  margin: EdgeInsets.only(top: 22),
-                  width: 75,
-                  height: 75,
-                  child: SvgPicture.asset("assets/icons/007-torch.svg"),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: Colors.transparent,
-
-                    // image: DecorationImage(
-                    //     image: AssetImage(widget.data.photo), fit: BoxFit.cover),
-                  ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    getLogWeather(TextEditingController()),
-                    Container(
-                      margin: EdgeInsets.all(12),
-                      child: Text(
-                        "12 C",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontFamily: 'inter'),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            )));
+            child: Column(children: [
+              Container(
+                  margin: EdgeInsets.only(left: 12, right: 12, top: 8),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          formatter.format(widget.recordDate),
+                          style: TextStyle(
+                              color: AppColor.whiteSoft,
+                              fontFamily: 'inter',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          formatterTime.format(widget.recordDate),
+                          style: TextStyle(
+                              color: AppColor.whiteSoft,
+                              fontFamily: 'inter',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400),
+                        )
+                      ])),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                      onTap: () {
+                        getWeatherDetailModal();
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(top: 12, left: 12, bottom: 12),
+                        width: 75,
+                        height: 75,
+                        child: SvgPicture.asset(
+                          currentWeather.weatherIcon,
+                          color: AppColor.whiteSoft,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.transparent,
+                        ),
+                      )),
+                  Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      InkWell(
+                          onTap: () => getWeatherDetailModal(),
+                          child: Container(
+                              margin: EdgeInsets.all(12),
+                              child: Text(
+                                currentWeather.weather,
+                                textAlign: TextAlign.start,
+                                softWrap: true,
+                                style: TextStyle(
+                                    color: AppColor.whiteSoft,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'inter'),
+                              ))),
+                      InkWell(
+                          onTap: () {
+                            if (!widget.manualInput) {
+                              return;
+                            }
+                            this.getTempModal(currentWeather, context);
+                          },
+                          child: Container(
+                              margin: EdgeInsets.all(12),
+                              child: Text("${currentWeather.temp} °C",
+                                  style: TextStyle(
+                                      color: AppColor.whiteSoft,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w800,
+                                      fontFamily: 'inter'))))
+                    ],
+                  )
+                ],
+              )
+            ])));
   }
 
-  Widget getLogWeather(TextEditingController controller) {
+  void getWeatherDetailModal() {
+    if (!widget.manualInput) {
+      return;
+    }
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              backgroundColor: AppColor.primary.withAlpha(200),
+              content: getIconSelection(currentWeather, context));
+        });
+  }
+
+  void getTempModal(WeatherInfo inputWeather, BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+              child: AlertDialog(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  content: Container(
+                      padding: EdgeInsets.only(left: 50),
+                      child: TempSelector(
+                          inputTemp: inputWeather.temp,
+                          onFinishedSelection: (value) {
+                            setState(() {
+                              inputWeather.temp = value;
+                            });
+                          }))));
+        });
+  }
+
+  getIconSelection(WeatherInfo weatherInfo, BuildContext context) {
     return Container(
-        width: 200,
-        padding: EdgeInsets.symmetric(horizontal: 8),
-        child: Focus(
-          onFocusChange: ((value) {
-            try {} catch (e) {
-              print(e);
-            }
-          }),
-          child: TextField(
-              textAlign: TextAlign.start,
-              controller: controller,
-              autocorrect: true,
-              style: TextStyle(
-                  color: AppColor.primary.withAlpha(200),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'inter'),
-              cursorColor: Colors.black,
-              obscureText: false,
-              minLines: 1,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: "Weather description",
-                hintStyle: TextStyle(
-                    color: AppColor.primary.withAlpha(200),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'inter'),
-                border: InputBorder.none,
-              )),
+        color: Colors.transparent,
+        width: MediaQuery.of(context).size.width * .5,
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisSpacing: 20,
+            mainAxisSpacing: 20,
+            crossAxisCount: 2,
+          ),
+          itemCount: WeatherHelper.weather.length,
+          itemBuilder: (context, index) {
+            final selected = this.weatherHelper.getAllWeatherStates()[index];
+            final infoSelected = this.weatherHelper.getEntry(selected);
+            return new GestureDetector(
+              onTap: () {
+                weatherInfo.code = selected;
+                weatherInfo.weatherIcon = infoSelected.iconPath;
+                weatherInfo.weather = infoSelected.description;
+                Navigator.of(context).pop();
+                setState(() {});
+              },
+              child: Column(children: [
+                Container(
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(10)),
+                    child: InkWell(
+                      child: SvgPicture.asset(
+                        infoSelected.iconPath,
+                        color: AppColor.whiteSoft,
+                      ),
+                    )),
+                Text(
+                  infoSelected.description,
+                  textAlign: TextAlign.center,
+                  softWrap: true,
+                  style: TextStyle(
+                      color: AppColor.whiteSoft,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'inter'),
+                )
+              ]),
+            );
+          },
         ));
+  }
+}
+
+class TempSelector extends StatefulWidget {
+  final int inputTemp;
+  final Function(int) onFinishedSelection;
+  const TempSelector({Key key, this.inputTemp, this.onFinishedSelection})
+      : super(key: key);
+  @override
+  _TempSelectorState createState() => _TempSelectorState();
+}
+
+class _TempSelectorState extends State<TempSelector> {
+  int _currentValue = 3;
+
+  @override
+  void initState() {
+    super.initState();
+    this._currentValue = widget.inputTemp;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+      NumberPicker(
+          itemCount: 9,
+          value: _currentValue,
+          minValue: -30,
+          maxValue: 60,
+          haptics: true,
+          itemHeight: 60,
+          axis: Axis.vertical,
+          selectedTextStyle: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'inter',
+              color: Colors.white),
+          textStyle: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w300,
+              fontFamily: 'inter',
+              color: Colors.white),
+          onChanged: (value) {
+            setState(() {
+              _currentValue = value;
+            });
+            widget.onFinishedSelection(value);
+          }),
+      Text("°C",
+          style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'inter',
+              color: Colors.white))
+    ]);
   }
 }

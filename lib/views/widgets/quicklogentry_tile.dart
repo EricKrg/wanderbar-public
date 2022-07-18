@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
+import 'package:wanderbar/models/helper/weather_helper.dart';
 import 'package:wanderbar/views/widgets/audio_log_tile%20.dart';
 import 'package:wanderbar/views/widgets/geolocation_log_tile.dart';
 import 'package:wanderbar/views/widgets/info_container.dart';
+import 'package:wanderbar/views/widgets/modals/weather_modal.dart';
 import 'package:wanderbar/views/widgets/photo_log_tile%20.dart';
 import 'package:wanderbar/views/widgets/text_log_tile.dart';
 
@@ -103,6 +105,16 @@ class QuickLogEntryTile extends StatelessWidget {
         break;
       case QuickLogType.geolocation:
         return GeolocationLogTile(key: ValueKey(entry.uuid), data: entry);
+      case QuickLogType.weather:
+        final contentSplit = entry.content.split(":");
+        final preset = WeatherHelper().getEntry(contentSplit.first);
+        final weatherInfo = WeatherInfo(int.parse(contentSplit.last),
+            contentSplit.first, preset.description, preset.iconPath);
+        return WeatherTile(
+            key: ValueKey(entry.uuid),
+            manualInput: false,
+            recordDate: entry.recordDate,
+            weatherInfo: weatherInfo);
       default:
         throw Error();
     }

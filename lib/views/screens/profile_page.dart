@@ -7,7 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:wanderbar/views/widgets/info_container.dart';

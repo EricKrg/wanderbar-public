@@ -269,4 +269,4 @@ class QuickLogEntry {
   }
 }
 
-enum QuickLogType { photo, text, location, audio, geolocation }
+enum QuickLogType { photo, text, location, audio, geolocation, weather }

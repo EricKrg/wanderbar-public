@@ -4,16 +4,14 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:camera/camera.dart';
 import 'package:exif/exif.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
-import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:wanderbar/views/widgets/custom_bottom_add_bar%20copy.dart';
@@ -268,17 +266,30 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
             });
         break;
       case 4:
-        print("weather");
         showModalBottomSheet<dynamic>(
             context: context,
             isScrollControlled: true,
             enableDrag: true,
             clipBehavior: Clip.antiAliasWithSaveLayer,
-            backgroundColor: Colors.white,
+            backgroundColor: AppColor.whiteSoft,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             builder: (c) {
-              return WeatherControl();
+              return WeatherControl(
+                recordDate: recordDate,
+                position: position,
+                onFinished: (weatherInfo) {
+                  currentQuickLog.entries.add(new QuickLogEntry(
+                      content: "${weatherInfo.code}:${weatherInfo.temp}",
+                      recordDate: recordDate,
+                      entryType: QuickLogType.weather,
+                      position: position));
+                  quickLogHelper.updateQuickLog(
+                      currentQuickLog.selfRef, currentQuickLog);
+                  Navigator.of(c).pop();
+                  scrollDown();
+                },
+              );
             });
         break;
       default:
