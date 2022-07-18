@@ -81,6 +81,12 @@ class _TextLogInputState extends State<TextLogInput> {
   final DateFormat formatterTime = DateFormat('HH:mm');
 
   @override
+  void dispose() {
+    super.dispose();
+    print("TEXTLOG DISPOSE");
+  }
+
+  @override
   Widget build(BuildContext context) {
     final input = widget.logController;
     return ListView(
