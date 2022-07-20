@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
+import 'dart:io' show Platform;
 
 // ignore: must_be_immutable
 class CustomBottomAddNavigationBar extends StatefulWidget {
@@ -17,7 +18,7 @@ class _CustomBottomAddNavigationBarState
   Widget build(BuildContext context) {
     return Container(
         child: SizedBox(
-      height: 85,
+      height: Platform.isAndroid ? 60 : 85,
       child: BottomNavigationBar(
         currentIndex: 0,
         onTap: widget.onItemTapped,

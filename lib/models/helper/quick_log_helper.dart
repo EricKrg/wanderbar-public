@@ -5,7 +5,7 @@ import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/views/widgets/map_record_screen.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path/path.dart';
@@ -118,7 +118,11 @@ class QuickLogHelper {
       var userResult = await this.getUserSimpleByEmail(user.email);
 
       if (userResult.docs.isNotEmpty) {
-        trip.sharedWith.add(userResult.docs.first.reference);
+        if (trip.sharedWith.contains(userResult.docs.first.reference)) {
+          print("User already joined this trip, not adding");
+        } else {
+          trip.sharedWith.add(userResult.docs.first.reference);
+        }
       } else {
         var userRef = await createSimpleUser(user);
         trip.sharedWith.add(userRef);
@@ -450,5 +454,16 @@ class QuickLogHelper {
   Query<Map<String, dynamic>> searchCollectionByKey(
       List<String> searchTerms, String collection) {
     return _db.collection(collection).where('titel', whereIn: searchTerms);
+  }
+
+  Future<bool> hasInternetConn() async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        return true;
+      }
+    } on SocketException catch (_) {
+      return false;
+    }
   }
 }

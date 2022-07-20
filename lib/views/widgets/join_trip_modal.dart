@@ -6,7 +6,7 @@ import 'package:wanderbar/models/helper/quick_log_helper.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:wanderbar/views/widgets/custom_text_field.dart';
 
-import '../../models/core/recipe.dart';
+import '../../models/core/log_model.dart';
 
 class JoinTripModal extends StatefulWidget {
   const JoinTripModal({Key key}) : super(key: key);
@@ -71,7 +71,7 @@ class JoinTripModalState extends State<JoinTripModal> {
                     child: Icon(Icons.add_to_photos,
                         color: showAddbtn ? AppColor.primarySoft : Colors.grey),
                     style: ElevatedButton.styleFrom(
-                      primary: AppColor.primaryExtraSoft,
+                      primary: AppColor.primary,
                     ),
                   ),
                 )

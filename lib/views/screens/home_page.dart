@@ -3,10 +3,9 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/models/helper/asset_helper.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
-import 'package:wanderbar/models/helper/recipe_helper.dart';
 import 'package:wanderbar/views/screens/newly_posted_page.dart';
 import 'package:wanderbar/views/screens/profile_page.dart';
 import 'package:wanderbar/views/screens/quicklog_detail_page.dart';
@@ -124,7 +123,10 @@ class HomePageContent extends StatelessWidget {
                         fontFamily: 'inter'),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => SearchPage()));
+                    },
                     child: Text('see all'),
                     style: TextButton.styleFrom(
                         primary: Colors.black,
@@ -343,17 +345,26 @@ class HomePageContent extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 6),
                   child: GestureDetector(
                     onTap: () async {
-                      QuickLog newQl = QuickLog(
-                          description: "",
-                          recordDate: DateTime.now(),
-                          entries: [],
-                          photo: AssetHelper.getRandomIconAsset(),
-                          titel: "");
-                      await QuickLogHelper.instance.addQuickLog(
-                          FirebaseAuth.instance.currentUser, newQl);
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => QuickLogDetailPage(
-                              key: UniqueKey(), data: newQl)));
+                      if (await QuickLogHelper.instance.hasInternetConn()) {
+                        QuickLog newQl = QuickLog(
+                            description: "",
+                            recordDate: DateTime.now(),
+                            entries: [],
+                            photo: AssetHelper.getRandomIconAsset(),
+                            titel: "");
+                        await QuickLogHelper.instance.addQuickLog(
+                            FirebaseAuth.instance.currentUser, newQl);
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => QuickLogDetailPage(
+                                key: UniqueKey(), data: newQl)));
+                        return;
+                      }
+
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        behavior: SnackBarBehavior.floating,
+                        content:
+                            Text('No Internet connection, can not create Log.'),
+                      ));
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -454,7 +465,7 @@ class HomePageContent extends StatelessWidget {
         return Container(
             height: 300,
             child: ListView.separated(
-              itemCount: length,
+              itemCount: length > 4 ? 4 : length,
               padding: EdgeInsets.symmetric(horizontal: 16),
               physics: BouncingScrollPhysics(),
               shrinkWrap: true,

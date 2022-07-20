@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
 import 'package:wanderbar/views/screens/full_screen_image.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
@@ -30,8 +30,12 @@ class PhotoLogTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: 200, child: getPictureWidget(data.fileUrl, context));
+    return Material(
+        clipBehavior: Clip.antiAlias,
+        borderRadius: BorderRadius.circular(10),
+        elevation: 5,
+        child: Container(
+            height: 200, child: getPictureWidget(data.fileUrl, context)));
   }
 
   Widget getPictureWidget(String url, BuildContext context) {

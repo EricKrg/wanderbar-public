@@ -4,20 +4,19 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:camera/camera.dart';
 import 'package:exif/exif.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
-import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:wanderbar/views/widgets/custom_bottom_add_bar%20copy.dart';
 import 'package:wanderbar/views/widgets/map_record_screen.dart';
+import 'package:wanderbar/views/widgets/modals/weather_modal.dart';
 import 'package:wanderbar/views/widgets/quick_log_header.dart';
 import 'package:wanderbar/views/widgets/quicklogentry_tile.dart';
 import 'package:wanderbar/views/widgets/record_audio_screen.dart';
@@ -65,9 +64,9 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
     print("DID UPDATE");
     super.didUpdateWidget(oldWidget);
     setState(() {
-      quickLogStream = widget.data.selfRef
-          .snapshots()
-          .map((event) => QuickLog.fromJson(event.data()));
+      // quickLogStream = widget.data.selfRef
+      //     .snapshots()
+      //     .map((event) => QuickLog.fromJson(event.data()));
     });
   }
 
@@ -88,247 +87,298 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
     permission = await Geolocator.requestPermission();
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.bestForNavigation);
-    switch (index) {
-      // photo
-      case 0:
-        final PictureResult imageResults = await showModalBottomSheet(
-            context: context,
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20))),
-            builder: (context) {
-              return TakePictureScreen(isMulti: true);
-            });
 
-        List<Map<String, IfdTag>> exifs = [];
+    final sub = GeolocatorPlatform.instance
+        .getPositionStream(
+            locationSettings: LocationSettings(
+                accuracy: LocationAccuracy.bestForNavigation,
+                distanceFilter: 0))
+        .listen((event) {
+      position = event;
+      print("POS ${position.accuracy}");
+    });
 
-        if (imageResults == null || imageResults.files.isEmpty) {
-          return;
-        }
-        await Future.forEach(imageResults.files, (file) async {
-          exifs.add(await readExifFromBytes(await file.readAsBytes()));
-        });
+    try {
+      switch (index) {
+        // photo
+        case 0:
+          final PictureResult imageResults = await showModalBottomSheet(
+              context: context,
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20))),
+              builder: (context) {
+                return TakePictureScreen(isMulti: true);
+              });
 
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return RecordedPicture(
-                  currentQuickLog: currentQuickLog,
-                  files: imageResults.files,
-                  position: position,
-                  exifs: exifs,
-                  locationSelect: imageResults.source == ImageSource.gallery,
-                  recordDate: recordDate);
-            });
-        break;
-      // text
-      case 1:
-        showModalBottomSheet<dynamic>(
-            context: context,
-            isScrollControlled: true,
-            enableDrag: true,
-            clipBehavior: Clip.antiAliasWithSaveLayer,
-            backgroundColor: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            builder: (c) {
-              return TextLogInput(
-                  logController: this._textController,
+          List<Map<String, IfdTag>> exifs = [];
+
+          if (imageResults == null || imageResults.files.isEmpty) {
+            return;
+          }
+          await Future.forEach(imageResults.files, (file) async {
+            exifs.add(await readExifFromBytes(await file.readAsBytes()));
+          });
+
+          await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return RecordedPicture(
+                    currentQuickLog: currentQuickLog,
+                    files: imageResults.files,
+                    position: position,
+                    exifs: exifs,
+                    locationSelect: imageResults.source == ImageSource.gallery,
+                    recordDate: recordDate);
+              });
+          break;
+        // text
+        case 1:
+          await showModalBottomSheet<dynamic>(
+              context: context,
+              isScrollControlled: true,
+              enableDrag: true,
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              builder: (c) {
+                return TextLogInput(
+                    logController: this._textController,
+                    recordDate: recordDate,
+                    onSave: (input) {
+                      currentQuickLog.entries.add(new QuickLogEntry(
+                          content: input,
+                          recordDate: recordDate,
+                          entryType: QuickLogType.text,
+                          position: position));
+                      quickLogHelper.updateQuickLog(
+                          currentQuickLog.selfRef, currentQuickLog);
+                      Navigator.of(c).pop();
+                      scrollDown();
+                    });
+              });
+          break;
+        // audio
+        case 2:
+          await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                final audioRecoder = new FlutterSoundRecorder();
+                File audioFile;
+
+                return BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+                    child: AlertDialog(
+                        backgroundColor: AppColor.whiteSoft,
+                        insetPadding: EdgeInsets.all(8),
+                        content: Container(
+                          width: 100,
+                          child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Datetime of log entry
+                                Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        formatter.format(recordDate),
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: 'inter',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      Text(
+                                        formatterTime.format(recordDate),
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: 'inter',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600),
+                                      )
+                                    ]),
+                                Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  padding: EdgeInsets.only(top: 8),
+                                  color: Colors.transparent,
+                                  child: RecordAudioScreen(
+                                    recorder: audioRecoder,
+                                    onFinishedRecording: (path) async {
+                                      audioFile = File(path);
+
+                                      final preparedContent =
+                                          await audioToBase64(audioFile);
+                                      currentQuickLog.entries.add(
+                                          new QuickLogEntry(
+                                              content:
+                                                  preparedContent, //audioFile.path,
+                                              recordDate: recordDate,
+                                              entryType: QuickLogType.audio,
+                                              position: position));
+
+                                      quickLogHelper.updateQuickLog(
+                                          currentQuickLog.selfRef,
+                                          currentQuickLog);
+                                      Navigator.of(context).pop();
+                                      scrollDown();
+                                    },
+                                  ),
+                                ),
+                              ]),
+                        )));
+              });
+          break;
+        // map
+        case 3:
+          showModalBottomSheet<dynamic>(
+              context: context,
+              isScrollControlled: true,
+              enableDrag: true,
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              builder: (c) {
+                return ListView(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom),
+                    physics: BouncingScrollPhysics(),
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          margin: EdgeInsets.symmetric(vertical: 4),
+                          height: 4,
+                          decoration: BoxDecoration(
+                              color: Colors.grey.shade400,
+                              borderRadius: BorderRadius.circular(20)),
+                        ),
+                      ),
+                      Container(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          child: MapPositionStream(
+                            editingMode: true,
+                            onFinishedRecording: (QuickLogEntry entry) {
+                              currentQuickLog.entries.add(entry);
+                              quickLogHelper.updateQuickLog(
+                                  currentQuickLog.selfRef, currentQuickLog);
+                              Navigator.of(context).pop();
+                              scrollDown();
+                            },
+                          ))
+                    ]);
+              });
+          break;
+        case 4:
+          // weather
+          await showModalBottomSheet<dynamic>(
+              context: context,
+              isScrollControlled: true,
+              enableDrag: true,
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              backgroundColor: AppColor.whiteSoft,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              builder: (c) {
+                return WeatherControl(
                   recordDate: recordDate,
-                  onSave: (input) {
+                  position: position,
+                  onFinished: (weatherInfo) {
                     currentQuickLog.entries.add(new QuickLogEntry(
-                        content: input,
+                        content: "${weatherInfo.code}:${weatherInfo.temp}",
                         recordDate: recordDate,
-                        entryType: QuickLogType.text,
+                        entryType: QuickLogType.weather,
                         position: position));
                     quickLogHelper.updateQuickLog(
                         currentQuickLog.selfRef, currentQuickLog);
                     Navigator.of(c).pop();
                     scrollDown();
-                  });
-            });
-        break;
-      // audio
-      case 2:
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              final audioRecoder = new FlutterSoundRecorder();
-              File audioFile;
-
-              return BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
-                  child: AlertDialog(
-                      backgroundColor: AppColor.whiteSoft,
-                      insetPadding: EdgeInsets.all(8),
-                      content: Container(
-                        width: 100,
-                        child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Datetime of log entry
-                              Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      formatter.format(recordDate),
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: 'inter',
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    Text(
-                                      formatterTime.format(recordDate),
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: 'inter',
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600),
-                                    )
-                                  ]),
-                              Container(
-                                width: MediaQuery.of(context).size.width,
-                                padding: EdgeInsets.only(top: 8),
-                                color: Colors.transparent,
-                                child: RecordAudioScreen(
-                                  recorder: audioRecoder,
-                                  onFinishedRecording: (path) async {
-                                    audioFile = File(path);
-
-                                    final preparedContent =
-                                        await audioToBase64(audioFile);
-                                    currentQuickLog.entries.add(
-                                        new QuickLogEntry(
-                                            content:
-                                                preparedContent, //audioFile.path,
-                                            recordDate: recordDate,
-                                            entryType: QuickLogType.audio,
-                                            position: position));
-
-                                    quickLogHelper.updateQuickLog(
-                                        currentQuickLog.selfRef,
-                                        currentQuickLog);
-                                    Navigator.of(context).pop();
-                                    scrollDown();
-                                  },
-                                ),
-                              ),
-                            ]),
-                      )));
-            });
-        break;
-      // map
-      case 3:
-        showModalBottomSheet<dynamic>(
-            context: context,
-            isScrollControlled: true,
-            enableDrag: true,
-            clipBehavior: Clip.antiAliasWithSaveLayer,
-            backgroundColor: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            builder: (c) {
-              return ListView(
-                  shrinkWrap: true,
-                  padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom),
-                  physics: BouncingScrollPhysics(),
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.3,
-                        margin: EdgeInsets.symmetric(vertical: 4),
-                        height: 4,
-                        decoration: BoxDecoration(
-                            color: Colors.grey.shade400,
-                            borderRadius: BorderRadius.circular(20)),
-                      ),
-                    ),
-                    Container(
-                        height: MediaQuery.of(context).size.height * 0.7,
-                        child: MapPositionStream(
-                          editingMode: true,
-                          onFinishedRecording: (QuickLogEntry entry) {
-                            currentQuickLog.entries.add(entry);
-                            quickLogHelper.updateQuickLog(
-                                currentQuickLog.selfRef, currentQuickLog);
-                            Navigator.of(context).pop();
-                            scrollDown();
-                          },
-                        ))
-                  ]);
-            });
-        break;
-      default:
+                  },
+                );
+              });
+          break;
+        default:
+          print("not available");
+          break;
+      }
+    } catch (e) {
+      print("ERROR ITEM TAPPED ${e.toString()}");
+    } finally {
+      // finally end the position tracking
+      sub.cancel();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    print("build scaffold");
     return Scaffold(
-      key: UniqueKey(),
-      bottomNavigationBar: SafeArea(
-          bottom: false,
-          child: CustomBottomAddNavigationBar(onItemTapped: _onItemTapped)),
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60),
-          child: QuickLogDetailAppBarHeader(
-              key: UniqueKey(),
-              scrollController: _scrollController,
-              data: currentQuickLog)),
-      body: ListView(
         key: UniqueKey(),
-        controller: _scrollController,
-        shrinkWrap: false,
-        addAutomaticKeepAlives: true,
-        padding: EdgeInsets.zero,
-        physics: BouncingScrollPhysics(),
-        children: [
-          Stack(
+        bottomNavigationBar: SafeArea(
+            bottom: false,
+            child: CustomBottomAddNavigationBar(onItemTapped: _onItemTapped)),
+        extendBodyBehindAppBar: true,
+        extendBody: true,
+        appBar: PreferredSize(
+            preferredSize: Size.fromHeight(60),
+            child: QuickLogDetailAppBarHeader(
+                key: UniqueKey(),
+                scrollController: _scrollController,
+                data: currentQuickLog)),
+        body: Container(
+          color: AppColor.secondary
+              .withAlpha(100), //AppColor.primary.withAlpha(200),
+          child: ListView(
             key: UniqueKey(),
+            controller: _scrollController,
+            shrinkWrap: false,
+            addAutomaticKeepAlives: true,
+            padding: EdgeInsets.zero,
+            physics: BouncingScrollPhysics(),
             children: [
-              Container(
-                  key: UniqueKey(),
-                  padding: EdgeInsets.only(top: 50, bottom: 0),
-                  decoration: BoxDecoration(),
-                  child: StreamBuilder(
-                    stream: quickLogStream,
-                    builder: (context, snapshot) {
-                      print("build Tiles");
-                      if (!snapshot.hasData) return Text("Loading...");
-                      print("create tile");
-                      currentQuickLog = snapshot.data;
-                      return QuickLogEntryTiles(
-                        key: UniqueKey(),
-                        data: snapshot.data,
-                      );
-                    },
-                  )),
-              Column(
+              Stack(
+                key: UniqueKey(),
                 children: [
-                  QuickLogDetailHeader(
+                  Container(
                       key: UniqueKey(),
-                      data: currentQuickLog,
-                      scrollController: _scrollController,
-                      photoHeight: photoHeight,
-                      isEditing: isEditing),
+                      padding: EdgeInsets.only(top: 50, bottom: 0),
+                      decoration: BoxDecoration(),
+                      child: StreamBuilder(
+                        stream: quickLogStream,
+                        initialData: currentQuickLog,
+                        builder: (context, snapshot) {
+                          print("build Tiles");
+                          if (!snapshot.hasData) return Text("Loading...");
+                          print("create tile");
+                          currentQuickLog = snapshot.data;
+                          return QuickLogEntryTiles(
+                            key: UniqueKey(),
+                            data: snapshot.data,
+                          );
+                        },
+                      )),
+                  Column(
+                    children: [
+                      QuickLogDetailHeader(
+                          key: UniqueKey(),
+                          data: currentQuickLog,
+                          scrollController: _scrollController,
+                          photoHeight: photoHeight,
+                          isEditing: isEditing),
+                    ],
+                  ),
                 ],
               ),
             ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 
   Widget getTextDisplay(String text, String title, bool deterimator,
@@ -424,7 +474,6 @@ class RecordedPicture extends StatelessWidget {
                         index = index + 1;
                       },
                     );
-
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(

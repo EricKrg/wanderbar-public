@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:intl/intl.dart';
 
 class TextLogTile extends StatelessWidget {
   final QuickLogEntry data;
 
-  final DateFormat formatter = DateFormat('dd.MM.yyyy HH:mm');
+  final DateFormat formatter = DateFormat('dd.MM.yyyy');
   final DateFormat formatterTime = DateFormat('HH:mm');
   TextLogTile({@required this.data});
 
@@ -79,6 +79,12 @@ class TextLogInput extends StatefulWidget {
 class _TextLogInputState extends State<TextLogInput> {
   final DateFormat formatter = DateFormat('dd.MM.yyyy');
   final DateFormat formatterTime = DateFormat('HH:mm');
+
+  @override
+  void dispose() {
+    super.dispose();
+    print("TEXTLOG DISPOSE");
+  }
 
   @override
   Widget build(BuildContext context) {

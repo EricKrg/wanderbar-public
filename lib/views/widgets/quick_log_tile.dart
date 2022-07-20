@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wanderbar/models/core/recipe.dart';
-import 'package:wanderbar/models/helper/recipe_helper.dart';
+import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/views/screens/quicklog_detail_page.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:intl/intl.dart';
@@ -17,7 +16,6 @@ class StatefulQuickLogTile extends StatefulWidget {
 
 class _StatefulQuickLogTileState extends State<StatefulQuickLogTile> {
   final QuickLog data;
-  final RecipeHelper recipeHelper = RecipeHelper();
 
   _StatefulQuickLogTileState(this.data);
 

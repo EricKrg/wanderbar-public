@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:wanderbar/models/core/recipe.dart';
+import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:wanderbar/views/widgets/map_record_screen.dart';
 import 'package:intl/intl.dart';
@@ -75,6 +75,9 @@ class GeolocationLogTile extends StatelessWidget {
                   ),
                   // useer review
                   Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(5)),
                     height: noMap ? 140 : 240,
                     child: MapDetailStatic(
                         key: ValueKey(data.uuid),

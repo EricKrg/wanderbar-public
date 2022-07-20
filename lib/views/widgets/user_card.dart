@@ -1,0 +1,106 @@
+import 'dart:ui';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:wanderbar/models/core/log_model.dart';
+import 'package:wanderbar/views/utils/AppColor.dart';
+
+class UserCard extends StatelessWidget {
+  final UserSimple user;
+
+  const UserCard({Key key, this.user}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    print(this.user.displayName);
+    return Container(
+        margin: EdgeInsets.only(right: 4),
+        child: Container(
+            child: ClipRect(
+          child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+              child: Wrap(
+                alignment: WrapAlignment.start,
+                children: [
+                  Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: ((context) {
+                                      return getPopupImg(user);
+                                    }));
+                              },
+                              child: CachedNetworkImage(
+                                imageUrl: this.user.photoUrl,
+                                imageBuilder: (context, imageProvider) {
+                                  return CircleAvatar(
+                                    backgroundImage: imageProvider,
+                                  );
+                                },
+                                placeholder: (context, url) => const Center(
+                                    child: CircularProgressIndicator()),
+                                errorWidget: (context, url, error) => Icon(
+                                    Icons.face,
+                                    color: AppColor.primary.withAlpha(180),
+                                    size: 40),
+                              )),
+                          Container(
+                              margin: EdgeInsets.only(top: 4),
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                  color: AppColor.primary.withAlpha(180),
+                                  borderRadius: BorderRadius.circular(5)),
+                              child: Text(
+                                getUserName(this.user),
+                                style: TextStyle(
+                                    color: AppColor.whiteSoft,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'inter'),
+                              )),
+                        ],
+                      )),
+                ],
+              )),
+        )));
+  }
+
+  String getUserName(UserSimple user) {
+    if (user.displayName == null) {
+      return "No Name";
+    }
+
+    return user.displayName;
+  }
+
+  Widget getPopupImg(UserSimple user) {
+    return ClipRect(
+        child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+            child: AlertDialog(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              content: Container(
+                  child: CachedNetworkImage(
+                imageUrl: this.user.photoUrl,
+                imageBuilder: (context, imageProvider) {
+                  return CircleAvatar(
+                    radius: 120,
+                    backgroundImage: imageProvider,
+                  );
+                },
+                placeholder: (context, url) =>
+                    const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => Icon(Icons.face,
+                    color: AppColor.primary.withAlpha(180), size: 40),
+              )),
+            )));
+  }
+}
