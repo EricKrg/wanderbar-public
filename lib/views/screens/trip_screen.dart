@@ -149,22 +149,33 @@ class _TripPageState extends State<TripPage> {
                                   padding: EdgeInsets.symmetric(vertical: 6),
                                   child: GestureDetector(
                                       onTap: () async {
-                                        QuickLog newQl = QuickLog(
-                                            description: "",
-                                            recordDate: DateTime.now(),
-                                            entries: [],
-                                            photo: AssetHelper
-                                                .getRandomIconAsset(),
-                                            titel: "");
-                                        await quickLogHelper.addQuickLog(
-                                            FirebaseAuth.instance.currentUser,
-                                            newQl);
-                                        Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    QuickLogDetailPage(
-                                                        key: UniqueKey(),
-                                                        data: newQl)));
+                                        if (await QuickLogHelper.instance
+                                            .hasInternetConn()) {
+                                          QuickLog newQl = QuickLog(
+                                              description: "",
+                                              recordDate: DateTime.now(),
+                                              entries: [],
+                                              photo: AssetHelper
+                                                  .getRandomIconAsset(),
+                                              titel: "");
+                                          await quickLogHelper.addQuickLog(
+                                              FirebaseAuth.instance.currentUser,
+                                              newQl);
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      QuickLogDetailPage(
+                                                          key: UniqueKey(),
+                                                          data: newQl)));
+                                          return;
+                                        }
+                                        Navigator.of(context).pop();
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                          behavior: SnackBarBehavior.floating,
+                                          content: Text(
+                                              'No Internet connection, can not create Log.'),
+                                        ));
                                       },
                                       child: Column(
                                         mainAxisAlignment:
@@ -252,7 +263,7 @@ class _TripPageState extends State<TripPage> {
                                 ]),
                             Expanded(
                                 child: ListView.separated(
-                                    padding: EdgeInsets.only(bottom: 20),
+                                    padding: EdgeInsets.only(bottom: 200),
                                     scrollDirection: Axis.vertical,
                                     shrinkWrap: true,
                                     itemCount: trip.quickLogs.length,

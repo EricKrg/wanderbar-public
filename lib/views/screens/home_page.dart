@@ -123,7 +123,10 @@ class HomePageContent extends StatelessWidget {
                         fontFamily: 'inter'),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => SearchPage()));
+                    },
                     child: Text('see all'),
                     style: TextButton.styleFrom(
                         primary: Colors.black,
@@ -358,8 +361,9 @@ class HomePageContent extends StatelessWidget {
                       }
 
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        behavior: SnackBarBehavior.floating,
                         content:
-                            Text('No Internet connection, cant create Log.'),
+                            Text('No Internet connection, can not create Log.'),
                       ));
                     },
                     child: Column(
@@ -461,7 +465,7 @@ class HomePageContent extends StatelessWidget {
         return Container(
             height: 300,
             child: ListView.separated(
-              itemCount: length,
+              itemCount: length > 4 ? 4 : length,
               padding: EdgeInsets.symmetric(horizontal: 16),
               physics: BouncingScrollPhysics(),
               shrinkWrap: true,

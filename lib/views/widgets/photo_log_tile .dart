@@ -30,8 +30,12 @@ class PhotoLogTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: 200, child: getPictureWidget(data.fileUrl, context));
+    return Material(
+        clipBehavior: Clip.antiAlias,
+        borderRadius: BorderRadius.circular(10),
+        elevation: 5,
+        child: Container(
+            height: 200, child: getPictureWidget(data.fileUrl, context)));
   }
 
   Widget getPictureWidget(String url, BuildContext context) {

@@ -7,7 +7,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:wanderbar/models/core/log_model.dart';
 import 'package:wanderbar/models/helper/asset_helper.dart';
 import 'package:wanderbar/models/helper/quick_log_helper.dart';
-import 'package:wanderbar/views/screens/home_page.dart';
 import 'package:wanderbar/views/utils/AppColor.dart';
 import 'package:wanderbar/views/widgets/map_record_screen.dart';
 import 'package:intl/intl.dart';
@@ -286,7 +285,6 @@ class _QuickLogDetailHeaderState extends State<QuickLogDetailHeader> {
           });
         },
         child: Container(
-            //margin: EdgeInsets.only(bottom: 6, top: 8),
             child: Focus(
           onFocusChange: ((value) {
             widget.data.titel = _titleController.text.trim();
@@ -330,10 +328,13 @@ class _QuickLogDetailHeaderState extends State<QuickLogDetailHeader> {
           });
         },
         child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16),
             margin: EdgeInsets.only(bottom: 4, top: 0),
             child: Focus(
               onFocusChange: ((value) {
                 widget.data.description = _descController.text.trim();
+                print("FOCUS");
+                print(value);
                 try {
                   QuickLogHelper.instance
                       .updateQuickLog(widget.data.selfRef, widget.data);
@@ -344,12 +345,14 @@ class _QuickLogDetailHeaderState extends State<QuickLogDetailHeader> {
               child: TextField(
                   onSubmitted: (value) {
                     try {
+                      print("submit");
                       QuickLogHelper.instance
                           .updateQuickLog(widget.data.selfRef, widget.data);
                     } catch (e) {
                       print(e);
                     }
                   },
+                  keyboardType: TextInputType.text,
                   textAlign: TextAlign.center,
                   controller: _descController,
                   autocorrect: true,

@@ -320,62 +320,65 @@ class _QuickLogDetailPageState extends State<QuickLogDetailPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: UniqueKey(),
-      bottomNavigationBar: SafeArea(
-          bottom: false,
-          child: CustomBottomAddNavigationBar(onItemTapped: _onItemTapped)),
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      appBar: PreferredSize(
-          preferredSize: Size.fromHeight(60),
-          child: QuickLogDetailAppBarHeader(
-              key: UniqueKey(),
-              scrollController: _scrollController,
-              data: currentQuickLog)),
-      body: ListView(
         key: UniqueKey(),
-        controller: _scrollController,
-        shrinkWrap: false,
-        addAutomaticKeepAlives: true,
-        padding: EdgeInsets.zero,
-        physics: BouncingScrollPhysics(),
-        children: [
-          Stack(
+        bottomNavigationBar: SafeArea(
+            bottom: false,
+            child: CustomBottomAddNavigationBar(onItemTapped: _onItemTapped)),
+        extendBodyBehindAppBar: true,
+        extendBody: true,
+        appBar: PreferredSize(
+            preferredSize: Size.fromHeight(60),
+            child: QuickLogDetailAppBarHeader(
+                key: UniqueKey(),
+                scrollController: _scrollController,
+                data: currentQuickLog)),
+        body: Container(
+          color: AppColor.secondary
+              .withAlpha(100), //AppColor.primary.withAlpha(200),
+          child: ListView(
             key: UniqueKey(),
+            controller: _scrollController,
+            shrinkWrap: false,
+            addAutomaticKeepAlives: true,
+            padding: EdgeInsets.zero,
+            physics: BouncingScrollPhysics(),
             children: [
-              Container(
-                  key: UniqueKey(),
-                  padding: EdgeInsets.only(top: 50, bottom: 0),
-                  decoration: BoxDecoration(),
-                  child: StreamBuilder(
-                    stream: quickLogStream,
-                    initialData: currentQuickLog,
-                    builder: (context, snapshot) {
-                      print("build Tiles");
-                      if (!snapshot.hasData) return Text("Loading...");
-                      print("create tile");
-                      currentQuickLog = snapshot.data;
-                      return QuickLogEntryTiles(
-                        key: UniqueKey(),
-                        data: snapshot.data,
-                      );
-                    },
-                  )),
-              Column(
+              Stack(
+                key: UniqueKey(),
                 children: [
-                  QuickLogDetailHeader(
+                  Container(
                       key: UniqueKey(),
-                      data: currentQuickLog,
-                      scrollController: _scrollController,
-                      photoHeight: photoHeight,
-                      isEditing: isEditing),
+                      padding: EdgeInsets.only(top: 50, bottom: 0),
+                      decoration: BoxDecoration(),
+                      child: StreamBuilder(
+                        stream: quickLogStream,
+                        initialData: currentQuickLog,
+                        builder: (context, snapshot) {
+                          print("build Tiles");
+                          if (!snapshot.hasData) return Text("Loading...");
+                          print("create tile");
+                          currentQuickLog = snapshot.data;
+                          return QuickLogEntryTiles(
+                            key: UniqueKey(),
+                            data: snapshot.data,
+                          );
+                        },
+                      )),
+                  Column(
+                    children: [
+                      QuickLogDetailHeader(
+                          key: UniqueKey(),
+                          data: currentQuickLog,
+                          scrollController: _scrollController,
+                          photoHeight: photoHeight,
+                          isEditing: isEditing),
+                    ],
+                  ),
                 ],
               ),
             ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 
   Widget getTextDisplay(String text, String title, bool deterimator,

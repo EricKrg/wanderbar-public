@@ -26,24 +26,31 @@ class UserCard extends StatelessWidget {
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
-                        // color: Colors.black.withOpacity(0.26),
                       ),
                       child: Column(
                         children: [
-                          CachedNetworkImage(
-                            imageUrl: this.user.photoUrl,
-                            imageBuilder: (context, imageProvider) {
-                              return CircleAvatar(
-                                backgroundImage: imageProvider,
-                              );
-                            },
-                            placeholder: (context, url) => const Center(
-                                child: CircularProgressIndicator()),
-                            errorWidget: (context, url, error) => Icon(
-                                Icons.face,
-                                color: AppColor.primary.withAlpha(180),
-                                size: 40),
-                          ),
+                          GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: ((context) {
+                                      return getPopupImg(user);
+                                    }));
+                              },
+                              child: CachedNetworkImage(
+                                imageUrl: this.user.photoUrl,
+                                imageBuilder: (context, imageProvider) {
+                                  return CircleAvatar(
+                                    backgroundImage: imageProvider,
+                                  );
+                                },
+                                placeholder: (context, url) => const Center(
+                                    child: CircularProgressIndicator()),
+                                errorWidget: (context, url, error) => Icon(
+                                    Icons.face,
+                                    color: AppColor.primary.withAlpha(180),
+                                    size: 40),
+                              )),
                           Container(
                               margin: EdgeInsets.only(top: 4),
                               padding: EdgeInsets.all(4),
@@ -51,7 +58,7 @@ class UserCard extends StatelessWidget {
                                   color: AppColor.primary.withAlpha(180),
                                   borderRadius: BorderRadius.circular(5)),
                               child: Text(
-                                "${this.user.displayName}",
+                                getUserName(this.user),
                                 style: TextStyle(
                                     color: AppColor.whiteSoft,
                                     fontSize: 12,
@@ -63,5 +70,37 @@ class UserCard extends StatelessWidget {
                 ],
               )),
         )));
+  }
+
+  String getUserName(UserSimple user) {
+    if (user.displayName == null) {
+      return "No Name";
+    }
+
+    return user.displayName;
+  }
+
+  Widget getPopupImg(UserSimple user) {
+    return ClipRect(
+        child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+            child: AlertDialog(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              content: Container(
+                  child: CachedNetworkImage(
+                imageUrl: this.user.photoUrl,
+                imageBuilder: (context, imageProvider) {
+                  return CircleAvatar(
+                    radius: 120,
+                    backgroundImage: imageProvider,
+                  );
+                },
+                placeholder: (context, url) =>
+                    const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => Icon(Icons.face,
+                    color: AppColor.primary.withAlpha(180), size: 40),
+              )),
+            )));
   }
 }

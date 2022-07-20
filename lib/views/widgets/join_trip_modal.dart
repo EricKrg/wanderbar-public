@@ -71,7 +71,7 @@ class JoinTripModalState extends State<JoinTripModal> {
                     child: Icon(Icons.add_to_photos,
                         color: showAddbtn ? AppColor.primarySoft : Colors.grey),
                     style: ElevatedButton.styleFrom(
-                      primary: AppColor.primaryExtraSoft,
+                      primary: AppColor.primary,
                     ),
                   ),
                 )

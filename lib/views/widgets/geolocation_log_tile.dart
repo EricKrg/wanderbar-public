@@ -75,6 +75,9 @@ class GeolocationLogTile extends StatelessWidget {
                   ),
                   // useer review
                   Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(5)),
                     height: noMap ? 140 : 240,
                     child: MapDetailStatic(
                         key: ValueKey(data.uuid),

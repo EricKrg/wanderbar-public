@@ -118,7 +118,11 @@ class QuickLogHelper {
       var userResult = await this.getUserSimpleByEmail(user.email);
 
       if (userResult.docs.isNotEmpty) {
-        trip.sharedWith.add(userResult.docs.first.reference);
+        if (trip.sharedWith.contains(userResult.docs.first.reference)) {
+          print("User already joined this trip, not adding");
+        } else {
+          trip.sharedWith.add(userResult.docs.first.reference);
+        }
       } else {
         var userRef = await createSimpleUser(user);
         trip.sharedWith.add(userRef);
