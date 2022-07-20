@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -55,7 +55,7 @@ class QuickLogEntryTiles extends StatelessWidget {
           return Column(children: [
             Stack(alignment: Alignment.center, children: [
               Divider(
-                height: 50,
+                height: 60,
                 thickness: 1,
                 indent: 16,
                 endIndent: 16,

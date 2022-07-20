@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:async/async.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -98,6 +100,8 @@ class _MapPositionStreamState extends State<MapPositionStream> {
 
   Position currentPosition;
 
+  StreamSubscription mapSub;
+
   @override
   void initState() {
     super.initState();
@@ -118,6 +122,10 @@ class _MapPositionStreamState extends State<MapPositionStream> {
   void dispose() {
     super.dispose();
     mapController = null;
+    if (this.mapSub != null) {
+      this.mapSub.cancel();
+    }
+    
   }
 
   @override
@@ -147,8 +155,13 @@ class _MapPositionStreamState extends State<MapPositionStream> {
                         zoom: 18.0,
                         onMapCreated: (controller) {
                           mapController = controller;
-                          FlutterCompass.events.listen((event) {
-                            mapController.rotate(event.heading * -1);
+                          this.mapSub = FlutterCompass.events.listen((event) {
+                            try {
+                              mapController.rotate(event.heading * -1);  
+                            } catch (e) {
+                              print("mapstream error");
+                            }
+                            
                           });
                         }),
                     layers: [
